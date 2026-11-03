@@ -1,0 +1,41 @@
+{
+  "version": "3.0",
+  "network": "baseSepolia",
+  "chainId": 84532,
+  "deployedAt": "2026-11-02T18:03:31.428Z",
+  "deployer": "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+  "superToken": "0xf5a6F83CE27692A247C3B2d1b7e0a3C3234300b4",
+  "note": "Standalone V3 stack (testnet). Admin = Sepolia V2.1 Timelock, PAUSER + ARBITER = deployer (testnet), treasury = Timelock. Randomness = future blockhash (no VRF).",
+  "contracts": {
+    "stakingV3Stack": "0xD60AD2FD5AD8DA6ED1Dbe262e025f26487C82713",
+    "marketplaceV3": "0x220Df97AA2faA3255BbF4F3D043b92B2B269E7CA",
+    "timelock": "0x50072Fdc8b05972Bfa5BB73472208172470e84a0"
+  },
+  "params": {
+    "feeBps": "250",
+    "burnShareBps": "4000",
+    "treasuryShareBps": "1000",
+    "challengePeriod": "180",
+    "voteCommitWindow": "150",
+    "voteRevealWindow": "150",
+    "appealWindow": "120",
+    "arbitrationWindow": "3600",
+    "committeeSize": "3",
+    "appealCommitteeSize": "5",
+    "providerStakeBps": "10000",
+    "slashVerifierBps": "1000",
+    "slashChallengerBps": "1000",
+    "bondBps": "1000",
+    "penaltyBps": "500",
+    "voteFeeBps": "300",
+    "appealBondMultBps": "20000",
+    "maxJobStakeBps": "5000",
+    "minVerifierStake": "1000000000000000000000",
+    "minBond": "25000000000000000000",
+    "maxBond": "100000000000000000000000",
+    "minPenalty": "100000000000000000000",
+    "maxPenalty": "1000000000000000000000",
+    "minVoteFee": "10000000000000000000",
+    "maxVoteFee": "5000000000000000000000"
+  }
+}

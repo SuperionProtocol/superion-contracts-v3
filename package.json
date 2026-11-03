@@ -1,0 +1,18 @@
+{
+  "name": "superion-contracts-v3",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Superion JobMarketplace V3 smart contracts (audit snapshot, Base Sepolia testnet only)",
+  "license": "MIT",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "5.6.1"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "6.1.2",
+    "hardhat": "2.29.1"
+  }
+}

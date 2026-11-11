@@ -1,0 +1,173 @@
+{
+  "startedAt": "2026-11-10T20:35:01.353Z",
+  "steps": [],
+  "txs": {
+    "fund_eth_provider": {
+      "hash": "0x9a41fd77469fbe5d21c5913975511b54112824bd8547bcd10d79b3c8650864a8",
+      "block": 57105166,
+      "gasUsed": "21000"
+    },
+    "fund_eth_challenger": {
+      "hash": "0x8aaf63bf09dbeaa383d95097ab5908096e07b36fcc179ad25df31384d03590d5",
+      "block": 57105173,
+      "gasUsed": "21000"
+    },
+    "fund_eth_v1": {
+      "hash": "0xec32d7353a08649234464c1862c451796b2e704e7205e27cd52a04527bbb582e",
+      "block": 57105179,
+      "gasUsed": "21000"
+    },
+    "fund_eth_v2": {
+      "hash": "0x761924a7feb8c9a8bf6ce0980b28468a320716d6e176e55118550b486a628631",
+      "block": 57105186,
+      "gasUsed": "21000"
+    },
+    "fund_eth_v3": {
+      "hash": "0x8e811beeca700fae79c3177c851991a3e7644aea53d3b7f831165129dbe9b85a",
+      "block": 57105192,
+      "gasUsed": "21000"
+    },
+    "fund_super_provider": {
+      "hash": "0x6e9ec668d14d109c320d831916c506e386e96e60e6b97e06261b4bb7edaf97bf",
+      "block": 57105199,
+      "gasUsed": "54454"
+    },
+    "fund_super_challenger": {
+      "hash": "0xe78795d5417224b199f4a3d404d2e2f0b3e42069618f9564b3a36a6cb4907940",
+      "block": 57105205,
+      "gasUsed": "54454"
+    },
+    "fund_super_v1": {
+      "hash": "0x117b9976564dbe857578636a856e3e9bb36e2324b7c6310a7f76e8d41816aea7",
+      "block": 57105211,
+      "gasUsed": "54454"
+    },
+    "fund_super_v2": {
+      "hash": "0x139ef1e50accc355145a923720f8f017f481590f117537620418fb60c8355fe5",
+      "block": 57105218,
+      "gasUsed": "54454"
+    },
+    "fund_super_v3": {
+      "hash": "0xb69c7df23a8bc7eb94d8ad8733627e4d3cae4700a9d8de906a5f4b9cf3635c9d",
+      "block": 57105224,
+      "gasUsed": "54454"
+    },
+    "approve_staking_v1": {
+      "hash": "0x2d88a51cbfa066a6d84bf8f66a24788169895350dc69b69269055af3b99caa0f",
+      "block": 57105231,
+      "gasUsed": "47009"
+    },
+    "stake_v1": {
+      "hash": "0x7c470d25be62f6203f90bb31d0761f9a32241bce37aa03a60e6269403e9f4b5f",
+      "block": 57105235,
+      "gasUsed": "261953"
+    },
+    "registerVerifier_v1": {
+      "hash": "0xc92f776276377c09485c7a4aa2bf60177b70fb8a6fb7cc057c38d2ff90d0eef0",
+      "block": 57105238,
+      "gasUsed": "180685"
+    },
+    "approve_staking_v2": {
+      "hash": "0xff9acaa0dc3687543dfd55721906c9ccf8c4b816efcd37ab009c3dfffb662a28",
+      "block": 57105242,
+      "gasUsed": "47009"
+    },
+    "stake_v2": {
+      "hash": "0x3c3b545223b9f5cf2b4526bfd0857df5c6c7a533ff10708ff4d520fa69e0dada",
+      "block": 57105245,
+      "gasUsed": "213119"
+    },
+    "registerVerifier_v2": {
+      "hash": "0xe54df1df27300211b818d6db3507245171333ddd9b607f7473036c28667e935d",
+      "block": 57105249,
+      "gasUsed": "146485"
+    },
+    "approve_staking_v3": {
+      "hash": "0x0e867f7bdae16ed8d67ccd832027c335f8bf9d13111a3874d190051619ef6afd",
+      "block": 57105252,
+      "gasUsed": "47009"
+    },
+    "stake_v3": {
+      "hash": "0x26d7bdb88ad777392200f31cc5fb52703568a36cdabf1fcc451da961d05fc41f",
+      "block": 57105256,
+      "gasUsed": "213119"
+    },
+    "registerVerifier_v3": {
+      "hash": "0x692e1e1ceecac985ee6bf43ef44e2f8544d856033ac390b25aded43f743cd516",
+      "block": 57105259,
+      "gasUsed": "146485"
+    },
+    "approve_staking_provider": {
+      "hash": "0xb6cf6a09415f4d170c295f246aa3eef0dae241815c8e1c2c366ec528fd5c9b95",
+      "block": 57105263,
+      "gasUsed": "47009"
+    },
+    "stake_provider": {
+      "hash": "0xe05667f6b6d44cb3eb01974ead3195e7dbb3ff82bf3ee49a45b4ef8dcfe20914",
+      "block": 57105266,
+      "gasUsed": "213119"
+    },
+    "approve_market_creator": {
+      "hash": "0xd31e6c3b4045581e4a3b69b6f7f6d8fa7a104c7c59a158d448c70e8fe678df21",
+      "block": 57105269,
+      "gasUsed": "47009"
+    },
+    "createJob": {
+      "hash": "0xca9fef006e44099223523956089eeadfabe15715712711a6b482888838040a1e",
+      "block": 57105276,
+      "gasUsed": "314357"
+    },
+    "assignJob": {
+      "hash": "0x6c904ba6e0ff9f9ab79c50fbf775443647b2858387de6c86a5e6d2c96552947b",
+      "block": 57105282,
+      "gasUsed": "103494"
+    },
+    "submitResult": {
+      "hash": "0xce24a05c931d19ccfa88220651e3ed7c6206b9ea4abf7fbeae10ebe1d0f01726",
+      "block": 57105286,
+      "gasUsed": "140018"
+    },
+    "approve_market_challenger": {
+      "hash": "0x96b592a4d5516c4a4ef4337a6f26350f9f8ff477f1f3ed2e51dac3a3cf510688",
+      "block": 57105289,
+      "gasUsed": "47009"
+    },
+    "challengeJob_vrfRequest": {
+      "hash": "0xcc3627a88b877de143b9002c2e6285f927d1cbd95ac6c349682e3891a82da9f8",
+      "block": 57105293,
+      "gasUsed": "744290"
+    }
+  },
+  "wallets": {
+    "provider": "0xbbFB4C7459ccA8e12D09B1652C97aE8f0Da7541D",
+    "challenger": "0xDe614C25293B1a043258D2c53354b3eB095C8D91",
+    "v1": "0xf9815C7d621CFAd85cC94F9904BA7DCb07FdfA42",
+    "v2": "0xF1eB8538fA597C209ea2C1030952A955E1ee1A7b",
+    "v3": "0xC5912227650cCe064C9F1342E949FACF58b2eB5b"
+  },
+  "creator": "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+  "deployerEthBefore": "0.018057868359447152",
+  "params": {
+    "feeBps": "500",
+    "committeeSize": "3",
+    "challengePeriod": "180",
+    "maxJobBudget": "1500.0",
+    "verifierCount": "3",
+    "engineCoordinator": "0x5C210eF41CD1a72de73bF76eC39637bB0d3d7BEE",
+    "engineSub": "104528378779111293709918531215676728750860588132267091154139917993080890643822",
+    "engineKeyHash": "0x9e1344a1247c8a1785d0a4681a27152bffdb43666ae5bf7d14d24a5efd44bf71",
+    "engineNative": true,
+    "engineCallbackGas": "2500000"
+  },
+  "jobId": "1",
+  "bond": "30.0",
+  "challengeGasUsed": "744290",
+  "draw": {
+    "state": "1",
+    "candidates": "3",
+    "size": "3",
+    "requestId": "70531278445969166154391374128594562226585393682504401906490152263901580722984",
+    "snapshotHash": "0x33942c3adb7090866dede19a3de508dfebc7f1cb72ee582ccc56cd854fc01176"
+  },
+  "phase1": true
+}

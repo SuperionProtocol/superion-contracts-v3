@@ -1,0 +1,109 @@
+{
+  "readAt": "2026-11-10T20:41:52.501Z",
+  "block": 57107219,
+  "holders": [
+    {
+      "contract": "marketplaceV3",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xCBbF2d82A30f74C447916312d7aD4E79cCA94b56",
+      "label": "Timelock 48h",
+      "hasRole": true
+    },
+    {
+      "contract": "marketplaceV3",
+      "role": "PAUSER_ROLE",
+      "account": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+      "label": "Safe testnet",
+      "hasRole": true
+    },
+    {
+      "contract": "marketplaceV3",
+      "role": "ARBITER_ROLE",
+      "account": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+      "label": "Safe testnet",
+      "hasRole": true
+    },
+    {
+      "contract": "stakingV3",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+      "label": "DÉPLOYEUR",
+      "hasRole": false
+    },
+    {
+      "contract": "stakingV3",
+      "role": "OPERATOR_ROLE",
+      "account": "0xdb2DE04836dC3773f86b351DFa62FE681982310D",
+      "label": "Marché V3",
+      "hasRole": true
+    },
+    {
+      "contract": "stakingV3",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xCBbF2d82A30f74C447916312d7aD4E79cCA94b56",
+      "label": "Timelock 48h",
+      "hasRole": true
+    },
+    {
+      "contract": "governanceTimelock",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xCBbF2d82A30f74C447916312d7aD4E79cCA94b56",
+      "label": "Timelock 48h",
+      "hasRole": true
+    },
+    {
+      "contract": "governanceTimelock",
+      "role": "PROPOSER_ROLE",
+      "account": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+      "label": "Safe testnet",
+      "hasRole": true
+    },
+    {
+      "contract": "governanceTimelock",
+      "role": "CANCELLER_ROLE",
+      "account": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+      "label": "Safe testnet",
+      "hasRole": true
+    },
+    {
+      "contract": "governanceTimelock",
+      "role": "EXECUTOR_ROLE",
+      "account": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+      "label": "Safe testnet",
+      "hasRole": true
+    },
+    {
+      "contract": "certificateRegistry",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+      "label": "DÉPLOYEUR",
+      "hasRole": false
+    },
+    {
+      "contract": "certificateRegistry",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+      "label": "Safe testnet",
+      "hasRole": true
+    }
+  ],
+  "safe": {
+    "address": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+    "owners": [
+      "0x4EF06c58694A4DDaa6d1aa3F8F2F18856070993b",
+      "0xCbbe3094345D4aB47dD6e23bcD893927566B6938",
+      "0xE60322A5543C2bAD26115053B586d9679F4A939f"
+    ],
+    "threshold": "2",
+    "nonce": "0",
+    "version": "1.4.1",
+    "guard": "0x8B0Be82fB1F3b7405524AB3be6a8955ea78FED12"
+  },
+  "timelock": {
+    "minDelaySeconds": "172800",
+    "safe": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+    "officialMarket": "0xdb2DE04836dC3773f86b351DFa62FE681982310D"
+  },
+  "deployerHoldsAnyRole": false,
+  "realMainnetSafeCodeOnSepolia": "0x"
+}

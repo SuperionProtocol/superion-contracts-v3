@@ -10,8 +10,8 @@ import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.so
 
 /**
  * @title SuperionGovernor — V2.1
- * @notice On-chain governance (stSUPER). V2.1: quorum = max(stake fraction, quorumAbsoluteMin)
- *         to mitigate M-02 (tiny quorum when little SUPER is staked).
+ * @notice Gouvernance on-chain (stSUPER). V2.1 : quorum = max(fraction du stake, quorumAbsoluteMin)
+ *         pour mitiger M-02 (quorum infime si peu de SUPER stakés).
  */
 contract SuperionGovernor is
     Governor,

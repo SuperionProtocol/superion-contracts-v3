@@ -1,18 +1,26 @@
 {
   "name": "superion-contracts-v3",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "private": true,
-  "description": "Superion JobMarketplace V3 smart contracts (audit snapshot, Base Sepolia testnet only)",
+  "description": "Superion JobMarketplace V3 smart contracts (Base Sepolia testnet only, not audited)",
   "license": "MIT",
   "scripts": {
+    "prepare-deps": "python3 helpers/prepare-safe.py && python3 helpers/prepare-chainlink.py",
     "compile": "hardhat compile",
-    "test": "hardhat test"
+    "test": "hardhat test --network hardhat"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "5.6.1"
+    "@openzeppelin/contracts": "^5.6.1",
+    "@safe-global/api-kit": "^5.0.3",
+    "@safe-global/protocol-kit": "^8.0.7",
+    "@safe-global/types-kit": "^4.0.1"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "6.1.2",
-    "hardhat": "2.29.1"
+    "@nomicfoundation/hardhat-toolbox": "^6.1.2",
+    "@nomicfoundation/hardhat-verify": "^2.1.3",
+    "@openzeppelin/merkle-tree": "^1.0.8",
+    "dotenv": "^18.0.4",
+    "hardhat": "^2.29.1",
+    "solhint": "^6.2.4"
   }
 }

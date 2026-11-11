@@ -1,0 +1,1 @@
+module.exports=[{"coordinator":"0x5C210eF41CD1a72de73bF76eC39637bB0d3d7BEE","subscriptionId":"104528378779111293709918531215676728750860588132267091154139917993080890643822","keyHash":"0x9e1344a1247c8a1785d0a4681a27152bffdb43666ae5bf7d14d24a5efd44bf71","confirmations":3,"callbackGasLimit":2500000,"nativePayment":true}];

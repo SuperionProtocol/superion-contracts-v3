@@ -1,0 +1,249 @@
+{
+  "startedAt": "2026-11-11T09:00:17.678Z",
+  "steps": [],
+  "txs": {
+    "fund_eth_provider": {
+      "hash": "0x852c0bc1eb0db41dd921ad12d5d8312947ea1ba336e0c3600c0df4eddf0b5e66",
+      "block": 57328748,
+      "gasUsed": "21000"
+    },
+    "fund_eth_challenger": {
+      "hash": "0x67c27cab854ddc88bf1075bbf50563394fba2962a4b814ae41aa789ff5413d44",
+      "block": 57328755,
+      "gasUsed": "21000"
+    },
+    "fund_eth_v1": {
+      "hash": "0x6d4c6962516119233cfb9ff7d020cf5ee8d62e51f271b6b5f672035ebc4f0a50",
+      "block": 57328761,
+      "gasUsed": "21000"
+    },
+    "fund_eth_v2": {
+      "hash": "0xd093f0aacad62db338cd68525a3b0e976172d9217831e4aedf7a52370ecab993",
+      "block": 57328767,
+      "gasUsed": "21000"
+    },
+    "fund_eth_v3": {
+      "hash": "0xce45d6585e2e11655079442f2bbb19477d64cb169be2d65e423c571fb83320a9",
+      "block": 57328774,
+      "gasUsed": "21000"
+    },
+    "fund_super_provider": {
+      "hash": "0xb6c43f3d861fa6651942b884da2d5b891f9f7c130f30b9bbe55a1e0831e243fd",
+      "block": 57328780,
+      "gasUsed": "54454"
+    },
+    "fund_super_challenger": {
+      "hash": "0x1d4dbe75db6fdb4390b16efdf7daaf84abe257061d72fe390c825bf8aac574b0",
+      "block": 57328787,
+      "gasUsed": "54454"
+    },
+    "fund_super_v1": {
+      "hash": "0x6fc47f24f8afe0a3efff003aaecad88e9736893a189492c9e5469c7777a54d5e",
+      "block": 57328793,
+      "gasUsed": "54454"
+    },
+    "fund_super_v2": {
+      "hash": "0xae2ab97aeaec5973dee279057ec1259a3c41d24eb5c942a9a8ab4eaa718cfd9a",
+      "block": 57328800,
+      "gasUsed": "54454"
+    },
+    "fund_super_v3": {
+      "hash": "0x16f911a06e07e5b0b3d31338855af5641ff41c522b20201212439f3bce83ea46",
+      "block": 57328806,
+      "gasUsed": "54454"
+    },
+    "approve_staking_v1": {
+      "hash": "0x9f52cbe4ccc5d163fa009b56802a5765e5354f2ba7161db8eaa65010d0da255a",
+      "block": 57328813,
+      "gasUsed": "47009"
+    },
+    "stake_v1": {
+      "hash": "0x247d09d7dea3f95d7a5b1f3f70b8a7009af98fca51f882c2efa9021a19dcf921",
+      "block": 57328817,
+      "gasUsed": "213119"
+    },
+    "registerVerifier_v1": {
+      "hash": "0x6f6663193c185531facb57697d43d29be93b49f74cb426ae6491cf7873b71eaa",
+      "block": 57328820,
+      "gasUsed": "146485"
+    },
+    "approve_staking_v2": {
+      "hash": "0x92f5b0e3eeaa3475fe654f6408f8606929a649ca28b2f44c00b7992b1b1e3d7a",
+      "block": 57328824,
+      "gasUsed": "47009"
+    },
+    "stake_v2": {
+      "hash": "0xf14fb02a95ce305ff322dc6cc636f6ca2a4f21893d9ec7f026e26340e0eee8a3",
+      "block": 57328827,
+      "gasUsed": "213119"
+    },
+    "registerVerifier_v2": {
+      "hash": "0x9304f4717af4a93a0910866e403bee73153d3423e02869ce91529d183f3be07b",
+      "block": 57328831,
+      "gasUsed": "146485"
+    },
+    "approve_staking_v3": {
+      "hash": "0x7bfb57c69ff4d36aba92825ececd20c8633d08d89d08dbe64da984eb89ed63c9",
+      "block": 57328834,
+      "gasUsed": "47009"
+    },
+    "stake_v3": {
+      "hash": "0x26386bc201ffa87fdc35e34bc14b3c1737081dac8597fbdd17d2b749bde77367",
+      "block": 57328837,
+      "gasUsed": "213119"
+    },
+    "registerVerifier_v3": {
+      "hash": "0xd2c9c31a5cbf418126ac8835be77be97333a6750ecc47f4d5c5eea2c872f59a8",
+      "block": 57328841,
+      "gasUsed": "146485"
+    },
+    "approve_staking_provider": {
+      "hash": "0xd0198cf03f9eefa8a5f954fd010ce6d45d55ccf02236d34a6d8d8c8114cc7ef1",
+      "block": 57328844,
+      "gasUsed": "47009"
+    },
+    "stake_provider": {
+      "hash": "0x28faf7c9c3d0d42b10afab2a3b85439a9e413d226f303f468c86697226b22686",
+      "block": 57328848,
+      "gasUsed": "213119"
+    },
+    "approve_market_creator": {
+      "hash": "0xf0df5f885b1b1ac7db2cd5143a5c52a3c4e8feadc060e4d0925e38ee083307aa",
+      "block": 57328851,
+      "gasUsed": "47009"
+    },
+    "createJob": {
+      "hash": "0x5fd0bfe83f1530877f403e8fe54199a25decc3f0c4cd1871644726901f176c0f",
+      "block": 57328857,
+      "gasUsed": "297257"
+    },
+    "assignJob": {
+      "hash": "0x133be13961903b3915e2e7233932f0d94aa5f0b83167494a867bb14e70e34620",
+      "block": 57328864,
+      "gasUsed": "103494"
+    },
+    "submitResult": {
+      "hash": "0x64c740a52e0a9a11dca88158fcc58e82c2c5c44eacbaf8f2b64da8d802d97de3",
+      "block": 57328867,
+      "gasUsed": "140018"
+    },
+    "approve_market_challenger": {
+      "hash": "0xcc240382464158b32af70d23e326c664e7d230e289652e27fa486381c03870eb",
+      "block": 57328871,
+      "gasUsed": "47009"
+    },
+    "challengeJob_vrfRequest": {
+      "hash": "0xeecf2024adb82cadf9d50dda80cd1a1e29713a8810555957797c2ed3c95ad48b",
+      "block": 57328874,
+      "gasUsed": "924596"
+    },
+    "drawCommittee": {
+      "hash": "0x926794fb20280f54986558537ae23cd2e7850f07a1b6479023874460a60c2d7b",
+      "block": 57328929,
+      "gasUsed": "486467"
+    },
+    "commitVote_0x2054D4": {
+      "hash": "0x966309b790d40ac699b42d4d4b4d91e06d220108bdfb76bd78d78b1e7228153f",
+      "block": 57328936,
+      "gasUsed": "65792"
+    },
+    "commitVote_0xC59122": {
+      "hash": "0x42202b94a5f71b296f918e3b4c543e0442c30c8ed83ffb74b427251e6f02afef",
+      "block": 57329316,
+      "gasUsed": "65792"
+    },
+    "commitVote_0x0d58e7": {
+      "hash": "0x370e5981bff0a64acf45077ef4d9a8e0c87b8a20bcf34197f773ce44d44b2f99",
+      "block": 57329320,
+      "gasUsed": "65792"
+    },
+    "revealVote_0x2054D4": {
+      "hash": "0x52b50ccbf84cc0a393c342a59f9bf3b953aeef844e6345fb443886cae6b41b64",
+      "block": 57329686,
+      "gasUsed": "49731"
+    },
+    "revealVote_0xC59122": {
+      "hash": "0xd9d021c2674f6bdceaaec578888830e27b817fbc7e908f7198a2166320e4bdb2",
+      "block": 57329690,
+      "gasUsed": "49731"
+    },
+    "revealVote_0x0d58e7": {
+      "hash": "0x71de1dd46ab4894ad066a21e7421bb0d75421da61307eae56bd3175d2bbdbb5a",
+      "block": 57329693,
+      "gasUsed": "49731"
+    },
+    "resolveDispute": {
+      "hash": "0x9586cf76956746cb367ce1d0dcd95adb6e62161df579fa3e33da18101e5edc48",
+      "block": 57329697,
+      "gasUsed": "81299"
+    },
+    "finalizeDispute": {
+      "hash": "0x00ea5e1acceae434d49dcc9b547edddafffdd8a967d6ac636888dd5c785a8f99",
+      "block": 57330346,
+      "gasUsed": "271582"
+    }
+  },
+  "wallets": {
+    "provider": "0x0afd1b84865E533aFd945e8008479D0E9D41A29c",
+    "challenger": "0xcD6D3cec08517773ce01667a50A8C07C16efe9C7",
+    "v1": "0x2054D44C79985Bfe6BCB2963C4ED3FdCab2D042c",
+    "v2": "0x0d58e71818F1059cFA8481a1c6967E8f6ff39aea",
+    "v3": "0xE7B51Ce6c374ecCBdD7904Bd31204d5655A931A5"
+  },
+  "creator": "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+  "deployerEthBefore": "0.263137256253438611",
+  "params": {
+    "feeBps": "500",
+    "committeeSize": "3",
+    "challengePeriod": "180",
+    "maxJobBudget": "3000.0",
+    "verifierCount": "6",
+    "engineCoordinator": "0x5C210eF41CD1a72de73bF76eC39637bB0d3d7BEE",
+    "engineSub": "104528378779111293709918531215676728750860588132267091154139917993080890643822",
+    "engineKeyHash": "0x9e1344a1247c8a1785d0a4681a27152bffdb43666ae5bf7d14d24a5efd44bf71",
+    "engineNative": true,
+    "engineCallbackGas": "2500000"
+  },
+  "jobId": "2",
+  "bond": "30.0",
+  "challengeGasUsed": "924596",
+  "draw": {
+    "state": "1",
+    "candidates": "6",
+    "size": "3",
+    "requestId": "32957839136535140191880306969818342848051297523131133252036457202286028896514",
+    "snapshotHash": "0xcd27f40c60547afc0f4050baa3686d09a3ec65297b394b38a625067612dcc42d"
+  },
+  "phase1": true,
+  "fulfillment": {
+    "state": "2",
+    "word": "22182827444476389154385100319401391246205492041453597247682808405761626024663",
+    "txHash": "0x0de2542717a873c608d0d93596a3e71acffe2b4c4c118c2042218671b5609c11",
+    "block": 57328886,
+    "gasUsedTotalTx": "305973",
+    "from": "0x07a5B652Da4cCc9f5804ceF87453d768e0834461",
+    "gasPrice": "6000000",
+    "paymentWei": "2942092801523",
+    "paymentEth": "0.000002942092801523",
+    "nativePayment": true,
+    "callbackSuccess": true,
+    "secondsAfterRequest": 10
+  },
+  "committee": [
+    "0x2054D44C79985Bfe6BCB2963C4ED3FdCab2D042c",
+    "0xC5912227650cCe064C9F1342E949FACF58b2eB5b",
+    "0x0d58e71818F1059cFA8481a1c6967E8f6ff39aea"
+  ],
+  "committed": true,
+  "revealed": true,
+  "decided": true,
+  "finalized": true,
+  "finalJobStatus": "5",
+  "subscriptionAfter": {
+    "nativeBalance": "0.402995496649596972",
+    "reqCount": "2",
+    "owner": "0xE60322A5543C2bAD26115053B586d9679F4A939f"
+  },
+  "deployerEthAfter": "0.259127890949436302",
+  "finishedAt": "2026-11-11T09:05:39.015Z"
+}

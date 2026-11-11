@@ -1,10 +1,12 @@
-// V3 parameters — PROPOSALS. Testnet = short windows for testing; mainnet = days.
+// Paramètres V3 — PROPOSITIONS. Testnet = fenêtres courtes pour tester ; mainnet = jours.
 const { S, DAY } = require("../v2/config.cjs");
 
 const MARKETPLACE_V3_PARAMS_TESTNET = {
-  feeBps: 250,
-  burnShareBps: 4000,
-  treasuryShareBps: 1000,      // 10 % of fees to the treasury (hard cap 50 %)
+  // Partage approuvé (nouvelles missions) : 5 % de frais = 2,5 % trésorerie + 1,5 % stakers + 1 % brûlé.
+  // Ex. mission 1 000 SUPER : frais 50 = trésorerie 25 + stakers 15 + brûlé 10.
+  feeBps: 500,
+  burnShareBps: 2000,          // 20 % des frais brûlés
+  treasuryShareBps: 5000,      // 50 % des frais à la trésorerie (= plafond dur 50 %) ; le reste (30 %) aux stakers
   challengePeriod: 180,
   voteCommitWindow: 150,
   voteRevealWindow: 150,
@@ -15,11 +17,11 @@ const MARKETPLACE_V3_PARAMS_TESTNET = {
   providerStakeBps: 10000,
   slashVerifierBps: 1000,
   slashChallengerBps: 1000,
-  bondBps: 1000,               // bond = 10 % of the job value
-  penaltyBps: 500,             // non-reveal penalty = 5 % of the job value
-  voteFeeBps: 300,             // flat fee per vote = 3 % of the job value
-  appealBondMultBps: 20000,    // appeal bond = 2x the bond
-  maxJobStakeBps: 5000,        // job value <= 50 % of total verifier stake
+  bondBps: 1000,               // caution = 10 % de la valeur
+  penaltyBps: 500,             // pénalité non-révélation = 5 % de la valeur
+  voteFeeBps: 300,             // forfait par vote = 3 % de la valeur
+  appealBondMultBps: 20000,    // appel = 2x la caution
+  maxJobStakeBps: 5000,        // job <= 50 % du stake total des vérificateurs
   minVerifierStake: S(1000),
   minBond: S(25),
   maxBond: S(100000),
@@ -29,11 +31,14 @@ const MARKETPLACE_V3_PARAMS_TESTNET = {
   maxVoteFee: S(5000),
 };
 
-// Mainnet: realistic windows (days); arbitrationWindow (14 d) > Governor+Timelock path (~8 d).
+// Mainnet : fenêtres réalistes (jours) ; arbitrationWindow (14 j) > chemin Governor+Timelock (~8 j).
 const MARKETPLACE_V3_PARAMS_MAINNET_PROPOSAL = {
   ...MARKETPLACE_V3_PARAMS_TESTNET,
-  treasuryShareBps: 0,          // set after the pilots (governance, cap 50 % of fees)
-  // Amounts tuned by the V3 simulation (mechanism/sim/dispute_sim_v3.py, section RECOMMENDED)
+  // Proposition mainnet NON modifiée par cette étape : anciennes valeurs épinglées explicitement (question ouverte).
+  feeBps: 250,
+  burnShareBps: 4000,
+  treasuryShareBps: 0,          // fixé après les pilotes (gouvernance, plafond 50 % des frais)
+  // Montants réglés par la simulation V3 (mechanism/sim/dispute_sim_v3.py, section RECOMMENDED)
   bondBps: 2000,
   penaltyBps: 5000,
   slashVerifierBps: 3000,

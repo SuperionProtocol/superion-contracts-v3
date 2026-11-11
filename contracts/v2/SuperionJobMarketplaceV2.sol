@@ -17,14 +17,14 @@ interface IStakingV2 {
 
 /**
  * @title SuperionJobMarketplaceV2
- * @notice Marketplace for jobs paid in SUPER (V2.1) with:
+ * @notice Marketplace de jobs payés en SUPER (V2.1) avec :
  *   - finalisation optimiste ;
- *   - challenge with seed commit-reveal, then committee draw (H-01);
- *   - commit-reveal verifier votes (M-01);
- *   - feeBps / burnShareBps frozen at job creation; penalty and slash bps
- *     frozen at challenge time (M-03);
+ *   - contestation en commit-reveal (seed) puis tirage de comité (H-01) ;
+ *   - votes de vérificateurs en commit-reveal (M-01) ;
+ *   - feeBps / burnShareBps figés à la création du job ; pénalité et slash bps
+ *     figés à la contestation (M-03) ;
  *   - arbitre Timelock de secours / issue neutre.
- *   Parameters changeable only by DEFAULT_ADMIN_ROLE (= Timelock).
+ *   Paramètres modifiables uniquement par DEFAULT_ADMIN_ROLE (= Timelock).
  */
 contract SuperionJobMarketplaceV2 is AccessControl, ReentrancyGuard, Pausable {
     using SafeERC20 for ISuperToken;
@@ -47,8 +47,8 @@ contract SuperionJobMarketplaceV2 is AccessControl, ReentrancyGuard, Pausable {
         uint16 feeBps;
         uint16 burnShareBps;
         uint32 challengePeriod;
-        uint32 seedRevealDelay;    // min wait before seed reveal (committee commit-reveal)
-        uint32 seedRevealWindow;   // max window to reveal the seed
+        uint32 seedRevealDelay;    // attente min avant révélation du seed (commit-reveal comité)
+        uint32 seedRevealWindow;   // fenêtre max pour révéler le seed
         uint32 voteCommitWindow;   // phase commit des votes
         uint32 voteRevealWindow;   // phase reveal des votes
         uint32 arbitrationWindow;
@@ -67,12 +67,12 @@ contract SuperionJobMarketplaceV2 is AccessControl, ReentrancyGuard, Pausable {
     struct Job {
         address creator;
         address provider;
-        uint16 feeBps;              // frozen at creation
-        uint16 burnShareBps;        // frozen at creation (M-03)
+        uint16 feeBps;              // figé à la création
+        uint16 burnShareBps;        // figé à la création (M-03)
         Status status;
         uint64 deadline;
         uint64 challengeDeadline;
-        uint64 disputeDeadline;     // end of vote reveal phase (= start of arbiter window)
+        uint64 disputeDeadline;     // fin de la phase reveal des votes (= début fenêtre arbitre)
         uint256 budget;
         uint256 lockedStake;
         string jobURI;
@@ -89,7 +89,7 @@ contract SuperionJobMarketplaceV2 is AccessControl, ReentrancyGuard, Pausable {
         uint64 seedRevealEarliest;
         uint64 seedRevealDeadline;
         uint64 voteCommitDeadline;
-        uint256 verifierPenalty;    // frozen at challenge time
+        uint256 verifierPenalty;    // figé à la contestation
         uint16 slashVerifierBps;
         uint16 slashChallengerBps;
         bool committeeSelected;
@@ -105,7 +105,7 @@ contract SuperionJobMarketplaceV2 is AccessControl, ReentrancyGuard, Pausable {
     mapping(uint256 => Job) public jobs;
     mapping(uint256 => Dispute) public disputes;
     mapping(uint256 => address[]) internal _committees;
-    // 0 = not in committee, 1 = member without commit, 2 = commit submitted, 3 = vote "valid", 4 = vote "invalid"
+    // 0 = hors comité, 1 = membre sans commit, 2 = commit déposé, 3 = vote "valide", 4 = vote "invalide"
     mapping(uint256 => mapping(address => uint8)) public memberVote;
     mapping(uint256 => mapping(address => bytes32)) public voteCommits;
 
@@ -290,9 +290,9 @@ contract SuperionJobMarketplaceV2 is AccessControl, ReentrancyGuard, Pausable {
     }
 
     // ------------------------------------------------------------------
-    // Challenge: seed commit-reveal, then committee draw (H-01)
+    // Contestation : commit-reveal du seed puis tirage du comité (H-01)
     // ------------------------------------------------------------------
-    /// @param seedCommit keccak256(abi.encode(seed)) — the seed is revealed after seedRevealDelay
+    /// @param seedCommit keccak256(abi.encode(seed)) — le seed sera révélé après seedRevealDelay
     function challengeJob(uint256 jobId, bytes32 seedCommit) external nonReentrant {
         Job storage j = jobs[jobId];
         if (j.status != Status.Completed) revert InvalidState();
@@ -320,7 +320,7 @@ contract SuperionJobMarketplaceV2 is AccessControl, ReentrancyGuard, Pausable {
         emit JobChallenged(jobId, msg.sender, bond, seedCommit, d.seedRevealDeadline);
     }
 
-    /// @notice Reveals the seed and draws the committee. Randomness = keccak(seed, blockhash(commitBlock+1), jobId).
+    /// @notice Révèle le seed et tire le comité. Aléa = keccak(seed, blockhash(commitBlock+1), jobId).
     function revealCommittee(uint256 jobId, bytes32 seed) external nonReentrant {
         Job storage j = jobs[jobId];
         Dispute storage d = disputes[jobId];
@@ -356,7 +356,7 @@ contract SuperionJobMarketplaceV2 is AccessControl, ReentrancyGuard, Pausable {
         emit CommitteeSelected(jobId, committee, d.voteCommitDeadline, j.disputeDeadline);
     }
 
-    /// @notice Seed not revealed in time: bond burned, job returns to Completed (finalizable).
+    /// @notice Seed non révélé à temps : caution brûlée, job repasse en Completed (finalisable).
     function expireUnrevealedChallenge(uint256 jobId) external nonReentrant {
         Job storage j = jobs[jobId];
         Dispute storage d = disputes[jobId];
@@ -365,7 +365,7 @@ contract SuperionJobMarketplaceV2 is AccessControl, ReentrancyGuard, Pausable {
         uint256 bond = d.bond;
         d.bond = 0;
         j.status = Status.Completed;
-        j.challengeDeadline = uint64(block.timestamp); // finalizable immediately
+        j.challengeDeadline = uint64(block.timestamp); // finalisable immédiatement
         _burn(bond);
         emit ChallengeExpired(jobId, d.challenger, bond);
     }
@@ -430,7 +430,7 @@ contract SuperionJobMarketplaceV2 is AccessControl, ReentrancyGuard, Pausable {
         Job storage j = jobs[jobId];
         Dispute storage d = disputes[jobId];
         if (j.status != Status.Disputed) revert InvalidState();
-        // committee not selected: allow after seedRevealDeadline
+        // comité non sélectionné : autoriser après seedRevealDeadline
         if (!d.committeeSelected) {
             if (block.timestamp <= d.seedRevealDeadline) revert TooEarly();
             if (block.timestamp > uint256(d.seedRevealDeadline) + params.arbitrationWindow) revert TooLate();
@@ -483,7 +483,7 @@ contract SuperionJobMarketplaceV2 is AccessControl, ReentrancyGuard, Pausable {
             if (memberVote[jobId][v] == winningVote) {
                 winners++;
             } else {
-                // minority, absent, or unrevealed commit
+                // minoritaire, absent, ou commit non révélé
                 toBurn += _penalize(jobId, v, d.verifierPenalty);
             }
         }

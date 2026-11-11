@@ -1,0 +1,127 @@
+{
+  "contract": "CertificateRegistry v2",
+  "network": "baseSepolia",
+  "chainId": 84532,
+  "dryRun": false,
+  "deployedAt": "2026-11-10T20:38:31.056Z",
+  "deployer": "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+  "admin": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+  "note": "TESTNET, documents FICTIFS uniquement. Admin = Safe testnet 2-sur-3 (mêmes 3 propriétaires que le Safe mainnet ; ce n'est PAS le Safe mainnet).",
+  "txs": {
+    "deploy": "0x2f50b24b6884e3122c293ced02011c15d032ad7b6f587fa903bd106b0f1868f8",
+    "approveIssuer_ecole": "0xb6ff4384eb7c7fd73214a245afaa18a9f212db91cc27f12c4e1aec9c1f77ec20",
+    "approveIssuer_entreprise": "0x6b389e9747363deecc82b5707d701fd5967e0b86597d8f63829b6da4741c1fa7",
+    "approveIssuer_employeur": "0xf34f82d7f6aca911f224ade07170a8f434c0ffffb8a19951d377608f68cf161d",
+    "grant_ADMIN_safe": "0xafed449378495df30985401466c26619d16174bb2a9d7bbc83d7303df1784e11",
+    "renounce_ADMIN_deployer": "0xb76ece58b14f920a9584613abe4151b4a2bcd4e4d3849f246a7b883f3d3f9d17",
+    "fund_eth_ecole": "0x883788ca865515601ac7c8fbf1fc7235847f5709c0406cc3c42fe7b64b8f00e3",
+    "issue_ecole": "0x5ed05e3ca5259849ba69ddbd39cf785dc9a97f1494202da04f56367a24a8e257",
+    "fund_eth_entreprise": "0x8388d123a920305c67016d5b5590b53bf577782e127aed23c9a1a9f513f3a88e",
+    "issue_entreprise": "0xa246ea34a61b542a43bab03f032cf321dacf09162b60619bbf600a8a6161c744",
+    "fund_eth_employeur": "0x620ba98f8570afc0eb11f4d930cb4d1685878d3968ade85ea11f1b199617da81",
+    "issue_employeur": "0x3058b769e14f7f1c84eb39c3b9423b88ec261b08f73681908b69de8abc3f1151"
+  },
+  "blocks": {
+    "deploy": 57106214,
+    "approveIssuer_ecole": 57106221,
+    "approveIssuer_entreprise": 57106227,
+    "approveIssuer_employeur": 57106234,
+    "grant_ADMIN_safe": 57106240,
+    "renounce_ADMIN_deployer": 57106247,
+    "fund_eth_ecole": 57106254,
+    "issue_ecole": 57106261,
+    "fund_eth_entreprise": 57106265,
+    "issue_entreprise": 57106271,
+    "fund_eth_employeur": 57106275,
+    "issue_employeur": 57106282
+  },
+  "issuers": [
+    {
+      "key": "ecole",
+      "address": "0x593dA66c8A41D0307291Eb846894F4acdA064583",
+      "name": "DEMO TESTNET - École professionnelle Exemple de Lausanne (FICTIVE)",
+      "kind": 0
+    },
+    {
+      "key": "entreprise",
+      "address": "0xC2b54317DdED55bb0dC6DCC7Fedc71C2f395C856",
+      "name": "DEMO TESTNET - Atelier Démo Sàrl, Genève (FICTIVE)",
+      "kind": 1
+    },
+    {
+      "key": "employeur",
+      "address": "0x31C5D185F01Ac64f2C0b8A660E5c7817C3e4bE38",
+      "name": "DEMO TESTNET - Exemple Transports SA, Fribourg (FICTIF)",
+      "kind": 2
+    }
+  ],
+  "smoke": {
+    "exemple-cfc-informaticien.pdf": {
+      "keccak256": "0x55baae840790ffd41af8b6498d08318068ffc2c7fee5219b503fa87e4c7cff1f",
+      "found": 1,
+      "results": [
+        {
+          "issuer": "0x593dA66c8A41D0307291Eb846894F4acdA064583",
+          "issuerName": "DEMO TESTNET - École professionnelle Exemple de Lausanne (FICTIVE)",
+          "issuerActive": true,
+          "docType": "0",
+          "issuedAt": "1794343121",
+          "revoked": false,
+          "issuedWhileDistrusted": false
+        }
+      ],
+      "verdict": "AUTHENTIQUE (vert) — attendu"
+    },
+    "exemple-attestation-stage.pdf": {
+      "keccak256": "0x7b301ccf0064a4b6dae593e27218f82c3e9dc968c2199dc129425d42d87aec27",
+      "found": 1,
+      "results": [
+        {
+          "issuer": "0xC2b54317DdED55bb0dC6DCC7Fedc71C2f395C856",
+          "issuerName": "DEMO TESTNET - Atelier Démo Sàrl, Genève (FICTIVE)",
+          "issuerActive": true,
+          "docType": "2",
+          "issuedAt": "1794343123",
+          "revoked": false,
+          "issuedWhileDistrusted": false
+        }
+      ],
+      "verdict": "AUTHENTIQUE (vert) — attendu"
+    },
+    "exemple-certificat-travail.pdf": {
+      "keccak256": "0x7e0fa4ac56a2e5cc9b646c36e9a590c1132b9833def159966f5dea9426bda549",
+      "found": 1,
+      "results": [
+        {
+          "issuer": "0x31C5D185F01Ac64f2C0b8A660E5c7817C3e4bE38",
+          "issuerName": "DEMO TESTNET - Exemple Transports SA, Fribourg (FICTIF)",
+          "issuerActive": true,
+          "docType": "3",
+          "issuedAt": "1794343125",
+          "revoked": false,
+          "issuedWhileDistrusted": false
+        }
+      ],
+      "verdict": "AUTHENTIQUE (vert) — attendu"
+    },
+    "exemple-cfc-informaticien-FALSIFIE.pdf": {
+      "keccak256": "0x44453763eeb561d8867a9df644e87592bbbc04d9f494ffe135ddb484144ad4b1",
+      "found": 0,
+      "results": [],
+      "verdict": "INCONNU (rouge) — attendu"
+    },
+    "falsifiedVsGenuineSameHash": false
+  },
+  "deployerEthBefore": "0.014053436543445136",
+  "address": "0xf6565b423aa574722D77e0b64E14413a96a5EFBd",
+  "constructorArgs": [
+    "0xE60322A5543C2bAD26115053B586d9679F4A939f"
+  ],
+  "roles": {
+    "deployerIsAdmin": false,
+    "safeIsAdmin": true,
+    "adminCount": "1"
+  },
+  "deployerEthAfter": "0.013137490475438771",
+  "ethSpent": "0.000915946068006365"
+}

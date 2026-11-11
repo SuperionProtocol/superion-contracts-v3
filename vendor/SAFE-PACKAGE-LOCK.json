@@ -1,0 +1,19 @@
+{
+  "package": "@safe-global/safe-contracts",
+  "version": "1.4.1",
+  "resolved": "https://registry.npmjs.org/@safe-global/safe-contracts/-/safe-contracts-1.4.1.tgz",
+  "integrity": "sha512-fP1jewywSwsIniM04NsqPyVRFKPMAuirC3ftA/TA4X3Zc5EnwQp/UCJUU2PL/37/z/jMo8UUaJ+pnFNWmMU7dQ==",
+  "sha256": "8803f7cf26e2c58300b8136342faa7b8bce59436e300f52115fa25b095e0bf79",
+  "artifactCompiler": "0.7.6+commit.7338295f",
+  "artifactOptimizerEnabled": false,
+  "applicationCompiler": "0.8.24+commit.e11b9ed9",
+  "applicationV3Settings": {
+    "viaIR": true,
+    "optimizer": {
+      "enabled": true,
+      "runs": 1
+    },
+    "evmVersion": "cancun"
+  },
+  "note": "Unmodified published SafeL2, proxy factory and handler bytecode; not a signing mock. Vendored artifacts are loaded explicitly, no upstream scripts run."
+}

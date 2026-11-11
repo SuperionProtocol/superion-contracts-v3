@@ -1,3 +1,4 @@
+const {legacyFactory,legacyDraw,fulfillMock,oracle}=require('../helpers/legacy-vrf-fixture.cjs');
 const { expect } = require("chai");
 const { ethers, network } = require("hardhat");
 const { loadFixture, time, mine } = require("@nomicfoundation/hardhat-network-helpers");
@@ -16,7 +17,7 @@ async function deploy(params = P0) {
   const vs = rest.slice(0, 12);
   const token = await (await ethers.getContractFactory("SuperionToken")).deploy(admin.address);
   const staking = await (await ethers.getContractFactory("SuperionStakingV2")).deploy(await token.getAddress(), admin.address, 60);
-  const market = await (await ethers.getContractFactory("SuperionJobMarketplaceV3")).deploy(
+  const market = await (await legacyFactory()).deploy(
     await token.getAddress(), await staking.getAddress(), admin.address, admin.address, arbiter.address, treasury.address, params);
   await staking.grantRole(await staking.OPERATOR_ROLE(), await market.getAddress());
   const stAddr = await staking.getAddress(), mAddr = await market.getAddress();
@@ -47,7 +48,7 @@ async function completedJob(f, budget = 1000) {
 async function challengeAndDraw(f, id, who = f.challenger, s = "x") {
   await f.market.connect(who).challengeJob(id, salt(s + id));
   await mine(1);
-  await f.market.connect(f.outsider).drawCommittee(id);
+  await legacyDraw(f.market.connect(f.outsider),id);
   return f.market.committeeOf(id);
 }
 /** votes[i] : true / false / null (no commit) / "c" (commit, no reveal) */
@@ -71,7 +72,7 @@ describe("Superion V3 JobMarketplace", function () {
   describe("Params & governance", function () {
     it("rejects committee < 3, even appeal size, treasury share > hard cap; mainnet proposal is valid", async function () {
       const f = await loadFixture(fx);
-      const bad = async (o) => expect(f.market.setParams({ ...P0, ...o })).to.be.revertedWithCustomError(f.market, "InvalidParams");
+      const bad = async (o) => expect((await require('hardhat').ethers.getContractAt('MissionTerms',await f.market.terms())).setParams({ ...P0, ...o })).to.be.revertedWithCustomError(f.market, "InvalidParams");
       await bad({ committeeSize: 1 });
       await bad({ appealCommitteeSize: 3 });
       await bad({ appealCommitteeSize: 6 });
@@ -80,14 +81,14 @@ describe("Superion V3 JobMarketplace", function () {
       await bad({ appealBondMultBps: 9999 });
       await bad({ maxPenalty: S(2000) });
       await bad({ maxJobStakeBps: 0 });
-      await f.market.setParams(PM);
-      expect((await f.market.params()).arbitrationWindow).to.equal(14 * 86400);
+      await (await require('hardhat').ethers.getContractAt('MissionTerms',await f.market.terms())).setParams(PM);
+      expect((await (await require('hardhat').ethers.getContractAt('MissionTerms',await f.market.terms())).current()).arbitrationWindow).to.equal(14 * 86400);
     });
     it("only admin can set params / treasury; arbiter is a dedicated role", async function () {
       const f = await loadFixture(fx);
-      await expect(f.market.connect(f.outsider).setParams(P0)).to.be.revertedWithCustomError(f.market, "AccessControlUnauthorizedAccount");
+      await expect((await require('hardhat').ethers.getContractAt('MissionTerms',await f.market.terms())).connect(f.outsider).setParams(P0)).to.be.revertedWithCustomError(f.market, "AccessControlUnauthorizedAccount");
       await expect(f.market.connect(f.outsider).setTreasury(f.outsider.address)).to.be.revertedWithCustomError(f.market, "AccessControlUnauthorizedAccount");
-      await expect(f.market.connect(f.outsider).setFees(1, 1)).to.be.revertedWithCustomError(f.market, "AccessControlUnauthorizedAccount");
+      await expect((await require('hardhat').ethers.getContractAt('MissionTerms',await f.market.terms())).connect(f.outsider).setFees(1, 1)).to.be.revertedWithCustomError(f.market, "AccessControlUnauthorizedAccount");
       expect(await f.market.hasRole(await f.market.ARBITER_ROLE(), f.arbiter.address)).to.equal(true);
       await f.market.revokeRole(await f.market.ARBITER_ROLE(), f.arbiter.address);
       await f.market.grantRole(await f.market.ARBITER_ROLE(), f.outsider.address);
@@ -134,9 +135,9 @@ describe("Superion V3 JobMarketplace", function () {
       await time.increase(P0.challengePeriod + 1);
       const p0 = await bal(f, f.provider), t0 = await bal(f, f.treasury);
       await expect(f.market.finalizeJob(id)).to.emit(f.market, "TreasuryPaid");
-      const fee = S(1000) * 250n / BPS;
+      const fee = S(1000) * 500n / BPS;
       expect((await bal(f, f.provider)) - p0).to.equal(S(1000) - fee);
-      expect((await bal(f, f.treasury)) - t0).to.equal(fee * 1000n / BPS);
+      expect((await bal(f, f.treasury)) - t0).to.equal(fee * 5000n / BPS);
       expect((await f.market.jobs(id)).status).to.equal(Status.Finalized);
       expect(await f.staking.lockedStake(f.provider.address)).to.equal(0n); // provider stake unlocked
     });
@@ -158,78 +159,93 @@ describe("Superion V3 JobMarketplace", function () {
     });
   });
 
-  describe("Fix 3: no dispute without a full committee", function () {
-    it("ATTACK empty committee free refund: challenge reverts with too few eligible verifiers", async function () {
+  describe("POLICY UPDATE: filing possible without a full jury, escrow protected", function () {
+    it("POLICY UPDATE: insufficient verifiers allow filing but never a free refund or automatic payment", async function () {
       const f = await loadFixture(fx3);
       const id = await completedJob(f, 100);
-      // a verifier challenging is excluded => only 2 eligible
-      await expect(f.market.connect(f.vs[0]).challengeJob(id, salt("a"))).to.be.revertedWithCustomError(f.market, "NotEnoughVerifiers");
+      const id2 = await completedJob(f, 100);
+      // A verifier challenger is excluded: only 2 eligible, but filing is timely.
+      await f.market.connect(f.vs[0]).challengeJob(id, salt("a"));
+      await mine();
+      await expect(legacyDraw(f.market,id)).to.be.revertedWithCustomError(f.market, "NotEnoughVerifiers");
       await f.market.connect(f.vs[2]).exitVerifier();
-      await expect(f.market.connect(f.creator).challengeJob(id, salt("b"))).to.be.revertedWithCustomError(f.market, "NotEnoughVerifiers");
-      await time.increase(P0.challengePeriod + 1);
-      await f.market.finalizeJob(id); // worker paid, no free refund
-      expect((await f.market.jobs(id)).status).to.equal(Status.Finalized);
+      await f.market.connect(f.creator).challengeJob(id2, salt("b"));
+      await mine();
+      await expect(legacyDraw(f.market,id2)).to.be.revertedWithCustomError(f.market, "NotEnoughVerifiers");
+      const held = await bal(f, f.market);
+      const deadline = await f.market.effectiveProtectedDeadline(id2);
+      await time.increaseTo(deadline + 1n);
+      for (const job of [id, id2]) {
+        await f.market.resolveStale(job);
+        expect((await f.market.jobs(job)).status).to.equal(Status.Disputed);
+        expect((await f.market.disputes(job)).phase).to.equal(5n);
+        await expect(f.market.finalizeJob(job)).to.be.revertedWithCustomError(f.market, "InvalidState");
+      }
+      expect(await bal(f, f.market)).to.equal(held);
     });
-    it("verifiers leave after challenge: challenge cancelled, bond returned, worker can be paid", async function () {
+    it("POLICY UPDATE: verifier departure retains funded dispute until arbitration, no cancellation payout", async function () {
       const f = await loadFixture(fx3);
       const id = await completedJob(f, 100);
       const c0 = await bal(f, f.challenger);
-      await f.market.connect(f.challenger).challengeJob(id, salt("c"));
+      // PAUSE/JURY FIX: the verifier leaves BEFORE filing (frozen candidates can no longer leave after it).
       await f.market.connect(f.vs[0]).exitVerifier();
-      await f.market.drawCommittee(id);
-      expect(await bal(f, f.challenger)).to.equal(c0);
-      expect((await f.market.jobs(id)).status).to.equal(Status.Completed);
-      await expect(f.market.connect(f.creator).challengeJob(id, salt("d"))).to.be.revertedWithCustomError(f.market, "InvalidState");
-      await f.market.finalizeJob(id);
+      await f.market.connect(f.challenger).challengeJob(id, salt("c"));
+      const bond = (await f.market.disputes(id)).bond;
+      await expect(legacyDraw(f.market,id)).to.be.revertedWithCustomError(f.market, "NotEnoughVerifiers");
+      expect(await bal(f, f.challenger)).to.equal(c0 - bond);
+      expect((await f.market.jobs(id)).status).to.equal(Status.Disputed);
+      await expect(f.market.finalizeJob(id)).to.be.revertedWithCustomError(f.market, "InvalidState");
+      await time.increaseTo((await f.market.effectiveProtectedDeadline(id)) + 1n);
+      await f.market.resolveStale(id);
+      expect((await f.market.disputes(id)).phase).to.equal(5n);
+      await f.market.connect(f.arbiter).arbitrate(id, true); // EOA role unit test, not Safe proof
       expect((await f.market.jobs(id)).status).to.equal(Status.Finalized);
     });
   });
 
   describe("Fix 1 & 2: committee draw", function () {
-    it("committee: distinct, size k, parties excluded, drawn from a future block (TooEarly in same/next block)", async function () {
+    it("VRF UPDATE: distinct jury excludes parties; no selection before the MOCK callback, independent of block count", async function () {
       const f = await loadFixture(fx5);
-      // make creator and challenger verifiers too: they must be excluded
-      for (const s of [f.creator, f.challenger]) { await f.staking.connect(s).stake(S(10000)); await f.market.connect(s).registerVerifier(); }
+      for (const signer of [f.creator, f.challenger]) { await f.staking.connect(signer).stake(S(10000)); await f.market.connect(signer).registerVerifier(); }
       const id = await completedJob(f, 100);
-      await network.provider.send("evm_setAutomine", [false]);
       await f.market.connect(f.challenger).challengeJob(id, salt("e"));
-      const tx = await f.market.connect(f.outsider).drawCommittee(id, { gasLimit: 3_000_000 });
+      await expect(f.market.drawCommittee(id)).to.be.revertedWithCustomError(f.market, "TooEarly");
       await mine(1);
-      await network.provider.send("evm_setAutomine", [true]);
-      await expect(tx.wait()).to.be.rejected; // same block: TooEarly
-      await expect(f.market.drawCommittee(id)).to.be.revertedWithCustomError(f.market, "TooEarly"); // block+1: hash unknown yet
-      await f.market.drawCommittee(id);
+      await expect(f.market.drawCommittee(id)).to.be.revertedWithCustomError(f.market, "TooEarly");
+      await fulfillMock(f.market,id);
+      await f.market.connect(f.outsider).drawCommittee(id);
       const c = await f.market.committeeOf(id);
-      expect(c.length).to.equal(3);
-      expect(new Set(c).size).to.equal(3);
-      for (const a of [f.creator.address, f.challenger.address, f.provider.address]) expect(c).to.not.include(a);
-      await expect(f.market.drawCommittee(id)).to.be.revertedWithCustomError(f.market, "InvalidState");
+      expect(c.length).to.equal(3); expect(new Set(c).size).to.equal(3);
+      for (const address of [f.creator.address,f.challenger.address,f.provider.address]) expect(c).to.not.include(address);
+      await expect(f.market.drawCommittee(id)).to.be.revertedWithCustomError(f.market,"InvalidState");
     });
-    it("ATTACK re-roll: one challenge per job, no expire/re-challenge path, expired blockhash re-targets", async function () {
-      const f = await loadFixture(fx5);
-      const id = await completedJob(f, 100);
-      await f.market.connect(f.challenger).challengeJob(id, salt("f"));
-      expect(f.market.expireUnrevealedChallenge).to.equal(undefined);
-      expect(f.market.revealCommittee).to.equal(undefined);
-      await expect(f.market.connect(f.creator).challengeJob(id, salt("g"))).to.be.revertedWithCustomError(f.market, "InvalidState");
-      await mine(300);
-      await expect(f.market.drawCommittee(id)).to.emit(f.market, "EntropyRetargeted");
-      expect((await f.market.disputes(id)).phase).to.equal(Phase.Draw);
-      await mine(1);
-      await f.market.drawCommittee(id);
-      expect((await f.market.committeeOf(id)).length).to.equal(3);
+    it("VRF UPDATE: one challenge, one request; old blockhash expiry cannot retarget randomness", async function () {
+      const f = await loadFixture(fx5),id=await completedJob(f,100);
+      await f.market.connect(f.challenger).challengeJob(id,salt("f"));
+      expect(f.market.expireUnrevealedChallenge).to.equal(undefined); expect(f.market.revealCommittee).to.equal(undefined);
+      const engine=await oracle(f.market),before=await engine.status(id,0);
+      await expect(f.market.connect(f.creator).challengeJob(id,salt("g"))).to.be.revertedWithCustomError(f.market,"InvalidState");
+      await mine(300); await expect(f.market.drawCommittee(id)).to.be.revertedWithCustomError(f.market,"TooEarly");
+      expect((await engine.status(id,0)).requestId).to.equal(before.requestId);
+      await fulfillMock(f.market,id);await f.market.drawCommittee(id);expect((await f.market.committeeOf(id)).length).to.equal(3);
     });
-    it("ATTACK Sybil consecutive registration: 3 back-to-back attacker IDs do not get contiguous seats", async function () {
-      const f = await loadFixture(fx12); // vs[0..2] registered first = 'attacker block'
-      const att = new Set(f.vs.slice(0, 3).map((s) => s.address));
-      let captured = 0; const N = 60;
-      for (let i = 0; i < N; i++) {
-        const id = await completedJob(f, 10);
-        const c = await challengeAndDraw(f, id, f.challenger, "sy" + i);
-        if (c.filter((a) => att.has(a)).length >= 2) captured++;
+    it("VRF UPDATE: consecutive registration does not impose contiguous seats; 60 exact frozen-sampler checks, NOT anti-Sybil proof (equal 10000 bonds: reservation capacity)", async function () {
+      // RESERVATION ADAPTATION: 60 disputes stay open, each seat reserves its max penalty; equal bonds of 10000
+      // (instead of the 1000 minimum) give every one of the 12 verifiers capacity for all its seats. Weights stay equal.
+      const f=await loadFixture(fx),engine=await oracle(f.market),abi=ethers.AbiCoder.defaultAbiCoder();let nonContiguous=0;
+      for (const v of f.vs.slice(0, 12)) { await f.staking.connect(v).stake(S(10000)); await f.market.connect(v).registerVerifierWithStake(S(10000)); }
+      for(let j=0;j<60;j++){
+        const id=await completedJob(f,10);await f.market.connect(f.challenger).challengeJob(id,salt("sy"+j));await fulfillMock(f.market,id);
+        const d=await engine.status(id,0),[population,weights]=await engine.population(id,0),w=Array.from(weights);
+        const seed=ethers.keccak256(abi.encode(['bytes32','uint256','address','address','uint256','uint256','uint256','bytes32','uint256'],[await engine.DOMAIN(),31337,await engine.getAddress(),await f.market.getAddress(),id,0,d.requestId,d.snapshotHash,d.word]));
+        let total=w.reduce((a,b)=>a+b,0n);const expected=[];
+        for(let t=0;t<3;t++){let r=BigInt(ethers.keccak256(abi.encode(['bytes32','uint256'],[seed,t]))),i=0;r%=total;while(r>=w[i]){r-=w[i];i++;}expected.push(population[i]);total-=w[i];w[i]=0n;}
+        await f.market.drawCommittee(id);const actual=Array.from(await f.market.committeeOf(id));expect(actual).to.deep.equal(expected);expect(new Set(actual).size).to.equal(3);
+        const cyclic=population.some((_,start)=>actual.every(a=>[0,1,2].map(k=>population[(start+k)%population.length]).includes(a)));if(!cyclic)nonContiguous++;
       }
-      // independent draw (equal stake): P(>=2 of 3) = 28/220 = 0.127 ; contiguous (V2.1): 3/12 = 0.25
-      expect(captured / N).to.be.lessThan(0.24);
+      // Exact deterministic invariants, not an unreliable small-sample capture-rate threshold.
+      // Three funded identities can legitimately win a majority; the MOCK does not establish unbiased VRF.
+      expect(nonContiguous).to.be.greaterThan(0);
     });
     it("draw is stake-weighted: a 10x-bonded verifier is drawn far more often", async function () {
       const f = await loadFixture(fx);
@@ -305,7 +321,7 @@ describe("Superion V3 JobMarketplace", function () {
       const ab = (await f.market.disputes(id)).appealBond;
       expect(ab).to.equal(S(200));
       await mine(1);
-      await f.market.drawCommittee(id);
+      await legacyDraw(f.market,id);
       const c1 = await f.market.committeeOf(id);
       expect(c1.length).to.equal(5);
       for (const a of c1) expect(c0).to.not.include(a);
@@ -317,7 +333,7 @@ describe("Superion V3 JobMarketplace", function () {
       expect(await bondOf(f, c0[0])).to.equal(b0 - pen);   // overturned majority slashed
       expect(await bondOf(f, c0[2])).to.equal(b2);         // was right: untouched
       expect((await f.market.jobs(id)).status).to.equal(Status.Finalized);
-      const payout = S(1000) - S(1000) * 250n / BPS;
+      const payout = S(1000) - S(1000) * 500n / BPS;
       expect((await bal(f, f.provider)) - p0).to.equal(payout - 5n * fee); // paid: payout - appealBond + (appealBond - 5 fees)
       expect(await bal(f, f.market)).to.equal(0n);
     });
@@ -330,7 +346,7 @@ describe("Superion V3 JobMarketplace", function () {
       await expect(f.market.connect(f.provider).appeal(id)).to.be.revertedWithCustomError(f.market, "NotAllowed");
       await f.market.connect(f.creator).appeal(id);
       await expect(f.market.connect(f.challenger).appeal(id)).to.be.revertedWithCustomError(f.market, "InvalidState");
-      await mine(1); await f.market.drawCommittee(id);
+      await mine(1); await legacyDraw(f.market,id);
       const c1 = await f.market.committeeOf(id);
       await vote(f, id, c1, [true, true, true, true, false]);
       await f.market.resolveDispute(id);
@@ -344,18 +360,31 @@ describe("Superion V3 JobMarketplace", function () {
       await time.increase(P0.appealWindow + 1);
       await expect(f.market.connect(f.creator).appeal(id2)).to.be.revertedWithCustomError(f.market, "TooLate");
     });
-    it("appeal impossible without enough disjoint verifiers", async function () {
+    it("POLICY UPDATE: appeal opens without enough disjoint jurors and holds all funds for arbitration", async function () {
       const f = await loadFixture(fx5);
       const id = await completedJob(f, 100);
       const c0 = await challengeAndDraw(f, id);
       await vote(f, id, c0, [false, false, false]);
       await f.market.resolveDispute(id);
-      await expect(f.market.connect(f.provider).appeal(id)).to.be.revertedWithCustomError(f.market, "NotEnoughVerifiers");
+      await f.market.connect(f.provider).appeal(id);
+      const d = await f.market.disputes(id);
+      expect(d.round).to.equal(1n);
+      expect(d.appealBond).to.be.greaterThan(0n);
+      await mine();
+      await expect(legacyDraw(f.market,id)).to.be.revertedWithCustomError(f.market, "NotEnoughVerifiers");
+      expect((await f.market.committeeOfRound(id, 1)).length).to.equal(0);
+      const held = await bal(f, f.market);
+      await time.increaseTo((await f.market.effectiveProtectedDeadline(id)) + 1n);
+      await f.market.resolveStale(id);
+      await time.increase(365 * 86400);
+      await expect(f.market.finalizeDispute(id)).to.be.revertedWithCustomError(f.market, "InvalidState");
+      expect((await f.market.disputes(id)).phase).to.equal(5n);
+      expect(await bal(f, f.market)).to.equal(held);
     });
   });
 
   describe("Fix 4: arbiter & no-majority fallback", function () {
-    it("no majority: only arbiter, only within window; decision settles", async function () {
+    it("POLICY UPDATE: no majority: authorized arbiter without expiry; escalation alone does not settle", async function () {
       const f = await loadFixture(fx5);
       const id = await completedJob(f, 100);
       const c = await challengeAndDraw(f, id);
@@ -364,25 +393,29 @@ describe("Superion V3 JobMarketplace", function () {
       await time.increase(P0.voteRevealWindow + 1);
       await expect(f.market.resolveDispute(id)).to.be.revertedWithCustomError(f.market, "NoMajority");
       await expect(f.market.connect(f.outsider).arbitrate(id, true)).to.be.revertedWithCustomError(f.market, "AccessControlUnauthorizedAccount");
-      await expect(f.market.resolveStale(id)).to.be.revertedWithCustomError(f.market, "TooEarly");
+      await expect(f.market.resolveStale(id)).to.emit(f.market, "ArbitrationRequested");
       await f.market.connect(f.arbiter).arbitrate(id, false);
       expect((await f.market.jobs(id)).status).to.equal(Status.Refunded);
       expect(await bal(f, f.market)).to.equal(0n);
     });
-    it("arbiter absent: after window, neutral 50/50 split, bond returned minus fees, non-revealer slashed", async function () {
+    it("POLICY UPDATE: absent arbiter means indefinite hold, never 50/50; late binary decision remains possible", async function () {
       const f = await loadFixture(fx5);
       const id = await completedJob(f, 100);
       const c = await challengeAndDraw(f, id);
       const cr0 = await bal(f, f.creator), p0 = await bal(f, f.provider), ch0 = await bal(f, f.challenger);
       await vote(f, id, c, [true, false, null]);
       await time.increase(P0.voteRevealWindow + P0.arbitrationWindow + 2);
-      await expect(f.market.connect(f.arbiter).arbitrate(id, true)).to.be.revertedWithCustomError(f.market, "TooLate");
       await f.market.resolveStale(id);
-      expect((await f.market.jobs(id)).status).to.equal(Status.Split);
-      expect((await bal(f, f.creator)) - cr0).to.equal(S(50));
-      expect((await bal(f, f.provider)) - p0).to.equal(S(50));
-      const [bond, pen, fee] = await f.market.disputeAmounts(S(100));
-      expect((await bal(f, f.challenger)) - ch0).to.equal(bond - 2n * fee);
+      expect((await f.market.jobs(id)).status).to.equal(Status.Disputed);
+      expect(await bal(f, f.creator)).to.equal(cr0);
+      expect(await bal(f, f.provider)).to.equal(p0);
+      expect(await bal(f, f.challenger)).to.equal(ch0);
+      expect(await bondOf(f, c[2])).to.equal(S(1000)); // duties/slashing deferred until verdict
+      await time.increase(365 * 86400);
+      await f.market.connect(f.arbiter).arbitrate(id, false);
+      expect((await f.market.jobs(id)).status).to.equal(Status.Refunded);
+      expect((await bal(f, f.creator)) - cr0).to.equal(S(100));
+      const [, pen] = await f.market.disputeAmounts(S(100));
       expect(await bondOf(f, c[2])).to.equal(S(1000) - pen);
       expect(await bal(f, f.market)).to.equal(0n);
     });

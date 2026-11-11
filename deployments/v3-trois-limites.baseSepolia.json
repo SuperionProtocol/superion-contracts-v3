@@ -1,0 +1,468 @@
+{
+  "version": "3.1-trois-limites",
+  "network": "baseSepolia",
+  "chainId": 84532,
+  "dryRun": false,
+  "deployedAt": "2026-11-10T20:34:36.815Z",
+  "deployer": "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+  "superToken": "0xf5a6F83CE27692A247C3B2d1b7e0a3C3234300b4",
+  "contracts": {
+    "safeGuard": "0x8B0Be82fB1F3b7405524AB3be6a8955ea78FED12",
+    "safeGuardSetupHelper": "0x016C99e331Ae37705F15a1812871946Eac8f86Bd",
+    "testnetSafe": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+    "stakingV3": "0x167Eb56De6409e26980C84Cd943ca8f9C8fE755E",
+    "governanceTimelock": "0xCBbF2d82A30f74C447916312d7aD4E79cCA94b56",
+    "marketplaceV3": "0xdb2DE04836dC3773f86b351DFa62FE681982310D",
+    "drawEngine": "0xE9e24fD4A8F055C500Bf8582C6c393eCBEAeF738",
+    "missionTerms": "0x61adD5e62AD52604Cf432dB9Cabc41c12ad4fCb8"
+  },
+  "txs": {
+    "deploy_safeGuard": "0x62a0a6cd8ea20d1e968d9bc29b0f1dbe0904c7c659066cf9934ccdfd5b8126c1",
+    "deploy_safeGuardSetupHelper": "0xbdfa3345602e674aa200ec78e6594b04737832d58c69200e0f9f7b3c445d2a44",
+    "safe_createProxyWithNonce": "0xa6d65bc11976ade8dedb0c9b041e55ddbda32234ef254c297fd272b14d011c9b",
+    "vrf_createSubscription": "0x52b084a2bcb03acde3dccec16f4403d9c4de70f299e98a80b48de8fa0b515f96",
+    "vrf_fundSubscriptionWithNative": "0xd4ab22f4bc209bf6784fc4e9deccffd2715f0904d6f6ca4437db42af7dc16c4f",
+    "deploy_stakingV3": "0x2afbf9ae2984d883340f6bf62244cf5747f5c6c8dee0a1e8671f72e9e58a34d9",
+    "deploy_governanceTimelock": "0xda337829794a2686d5df098358683d1c7ecda590ca3145910cd14513d138b35c",
+    "deploy_marketplaceV3": "0xbfd09f5a636974d8475ca937101ae6a4cd9044801d1cf7f6e82a9bd4aa6f267e",
+    "vrf_addConsumer_engine": "0x2f519cda6d27930fdc12e42fcd1870e1397e070d4590083bdc551c63c65b2abc",
+    "staking_grant_OPERATOR_market": "0x3484eb7d601356347f71a4ba3722938b69217e2126169b94faad370dd4a522c9",
+    "staking_grant_ADMIN_timelock": "0x5460213c87dfba02401b36a0342c6f3f929704de43518effdc11726814bf4425",
+    "staking_renounce_ADMIN_deployer": "0x608e932486fef91ffe5a74e8f8ada0b4dcca4a8eaa75cc8f46160ed34baf6349",
+    "vrf_requestSubscriptionOwnerTransfer_safe": "0xf5b211bb5b88dbc7706e689084fe35ecf1b67dd28fa99fbd97fff1cbd4d0bd2d"
+  },
+  "blocks": {
+    "deploy_safeGuard": 57105043,
+    "deploy_safeGuardSetupHelper": 57105049,
+    "safe_createProxyWithNonce": 57105056,
+    "vrf_createSubscription": 57105063,
+    "vrf_fundSubscriptionWithNative": 57105069,
+    "deploy_stakingV3": 57105076,
+    "deploy_governanceTimelock": 57105082,
+    "deploy_marketplaceV3": 57105089,
+    "vrf_addConsumer_engine": 57105096,
+    "staking_grant_OPERATOR_market": 57105102,
+    "staking_grant_ADMIN_timelock": 57105108,
+    "staking_renounce_ADMIN_deployer": 57105115,
+    "vrf_requestSubscriptionOwnerTransfer_safe": 57105121
+  },
+  "constructorArgs": {
+    "safeGuard": [],
+    "safeGuardSetupHelper": [],
+    "stakingV3": [
+      "0xf5a6F83CE27692A247C3B2d1b7e0a3C3234300b4",
+      "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+      60
+    ],
+    "governanceTimelock": [
+      "172800",
+      [
+        "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6"
+      ],
+      [
+        "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6"
+      ],
+      "0x0000000000000000000000000000000000000000",
+      "0xdb2DE04836dC3773f86b351DFa62FE681982310D"
+    ],
+    "marketplaceV3": [
+      "0xf5a6F83CE27692A247C3B2d1b7e0a3C3234300b4",
+      "0x167Eb56De6409e26980C84Cd943ca8f9C8fE755E",
+      "0xCBbF2d82A30f74C447916312d7aD4E79cCA94b56",
+      "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+      "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+      "0xCBbF2d82A30f74C447916312d7aD4E79cCA94b56",
+      {
+        "feeBps": 500,
+        "burnShareBps": 2000,
+        "treasuryShareBps": 5000,
+        "challengePeriod": 180,
+        "voteCommitWindow": 150,
+        "voteRevealWindow": 150,
+        "appealWindow": 120,
+        "arbitrationWindow": 3600,
+        "committeeSize": 3,
+        "appealCommitteeSize": 5,
+        "providerStakeBps": 10000,
+        "slashVerifierBps": 1000,
+        "slashChallengerBps": 1000,
+        "bondBps": 1000,
+        "penaltyBps": 500,
+        "voteFeeBps": 300,
+        "appealBondMultBps": 20000,
+        "maxJobStakeBps": 5000,
+        "minVerifierStake": "1000000000000000000000",
+        "minBond": "25000000000000000000",
+        "maxBond": "100000000000000000000000",
+        "minPenalty": "100000000000000000000",
+        "maxPenalty": "1000000000000000000000",
+        "minVoteFee": "10000000000000000000",
+        "maxVoteFee": "5000000000000000000000"
+      },
+      {
+        "coordinator": "0x5C210eF41CD1a72de73bF76eC39637bB0d3d7BEE",
+        "subscriptionId": "104528378779111293709918531215676728750860588132267091154139917993080890643822",
+        "keyHash": "0x9e1344a1247c8a1785d0a4681a27152bffdb43666ae5bf7d14d24a5efd44bf71",
+        "confirmations": 3,
+        "callbackGasLimit": 2500000,
+        "nativePayment": true
+      }
+    ],
+    "drawEngine": [
+      {
+        "coordinator": "0x5C210eF41CD1a72de73bF76eC39637bB0d3d7BEE",
+        "subscriptionId": "104528378779111293709918531215676728750860588132267091154139917993080890643822",
+        "keyHash": "0x9e1344a1247c8a1785d0a4681a27152bffdb43666ae5bf7d14d24a5efd44bf71",
+        "confirmations": 3,
+        "callbackGasLimit": 2500000,
+        "nativePayment": true
+      }
+    ],
+    "missionTerms": [
+      {
+        "feeBps": 500,
+        "burnShareBps": 2000,
+        "treasuryShareBps": 5000,
+        "challengePeriod": 180,
+        "voteCommitWindow": 150,
+        "voteRevealWindow": 150,
+        "appealWindow": 120,
+        "arbitrationWindow": 3600,
+        "committeeSize": 3,
+        "appealCommitteeSize": 5,
+        "providerStakeBps": 10000,
+        "slashVerifierBps": 1000,
+        "slashChallengerBps": 1000,
+        "bondBps": 1000,
+        "penaltyBps": 500,
+        "voteFeeBps": 300,
+        "appealBondMultBps": 20000,
+        "maxJobStakeBps": 5000,
+        "minVerifierStake": "1000000000000000000000",
+        "minBond": "25000000000000000000",
+        "maxBond": "100000000000000000000000",
+        "minPenalty": "100000000000000000000",
+        "maxPenalty": "1000000000000000000000",
+        "minVoteFee": "10000000000000000000",
+        "maxVoteFee": "5000000000000000000000"
+      }
+    ]
+  },
+  "vrf": {
+    "coordinator": "0x5C210eF41CD1a72de73bF76eC39637bB0d3d7BEE",
+    "keyHash": "0x9e1344a1247c8a1785d0a4681a27152bffdb43666ae5bf7d14d24a5efd44bf71",
+    "confirmations": 3,
+    "callbackGasLimit": 2500000,
+    "nativePayment": true,
+    "subscriptionId": "104528378779111293709918531215676728750860588132267091154139917993080890643822",
+    "fundedNative": "0.003",
+    "subscriptionState": {
+      "nativeBalance": "0.003",
+      "owner": "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+      "consumers": [
+        "0xE9e24fD4A8F055C500Bf8582C6c393eCBEAeF738"
+      ],
+      "pendingOwner": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6"
+    }
+  },
+  "params": {
+    "feeBps": "500",
+    "burnShareBps": "2000",
+    "treasuryShareBps": "5000",
+    "challengePeriod": "180",
+    "voteCommitWindow": "150",
+    "voteRevealWindow": "150",
+    "appealWindow": "120",
+    "arbitrationWindow": "3600",
+    "committeeSize": "3",
+    "appealCommitteeSize": "5",
+    "providerStakeBps": "10000",
+    "slashVerifierBps": "1000",
+    "slashChallengerBps": "1000",
+    "bondBps": "1000",
+    "penaltyBps": "500",
+    "voteFeeBps": "300",
+    "appealBondMultBps": "20000",
+    "maxJobStakeBps": "5000",
+    "minVerifierStake": "1000000000000000000000",
+    "minBond": "25000000000000000000",
+    "maxBond": "100000000000000000000000",
+    "minPenalty": "100000000000000000000",
+    "maxPenalty": "1000000000000000000000",
+    "minVoteFee": "10000000000000000000",
+    "maxVoteFee": "5000000000000000000000"
+  },
+  "deployerEthBefore": "0.021145223673513515",
+  "safeSetup": {
+    "owners": [
+      "0x4EF06c58694A4DDaa6d1aa3F8F2F18856070993b",
+      "0xCbbe3094345D4aB47dD6e23bcD893927566B6938",
+      "0xE60322A5543C2bAD26115053B586d9679F4A939f"
+    ],
+    "threshold": 2,
+    "guard": "0x8B0Be82fB1F3b7405524AB3be6a8955ea78FED12",
+    "saltNonce": "97091027302993321953803152016643396098868216459136563793874771196027351818058"
+  },
+  "roles": [
+    {
+      "contract": "market",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+      "label": "deployer",
+      "has": false
+    },
+    {
+      "contract": "market",
+      "role": "PAUSER",
+      "account": "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+      "label": "deployer",
+      "has": false
+    },
+    {
+      "contract": "market",
+      "role": "ARBITER",
+      "account": "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+      "label": "deployer",
+      "has": false
+    },
+    {
+      "contract": "staking",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+      "label": "deployer",
+      "has": false
+    },
+    {
+      "contract": "staking",
+      "role": "OPERATOR",
+      "account": "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+      "label": "deployer",
+      "has": false
+    },
+    {
+      "contract": "timelock",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+      "label": "deployer",
+      "has": false
+    },
+    {
+      "contract": "timelock",
+      "role": "PROPOSER",
+      "account": "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+      "label": "deployer",
+      "has": false
+    },
+    {
+      "contract": "timelock",
+      "role": "EXECUTOR",
+      "account": "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+      "label": "deployer",
+      "has": false
+    },
+    {
+      "contract": "timelock",
+      "role": "CANCELLER",
+      "account": "0xE60322A5543C2bAD26115053B586d9679F4A939f",
+      "label": "deployer",
+      "has": false
+    },
+    {
+      "contract": "market",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+      "label": "testnetSafe",
+      "has": false
+    },
+    {
+      "contract": "market",
+      "role": "PAUSER",
+      "account": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+      "label": "testnetSafe",
+      "has": true
+    },
+    {
+      "contract": "market",
+      "role": "ARBITER",
+      "account": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+      "label": "testnetSafe",
+      "has": true
+    },
+    {
+      "contract": "staking",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+      "label": "testnetSafe",
+      "has": false
+    },
+    {
+      "contract": "staking",
+      "role": "OPERATOR",
+      "account": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+      "label": "testnetSafe",
+      "has": false
+    },
+    {
+      "contract": "timelock",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+      "label": "testnetSafe",
+      "has": false
+    },
+    {
+      "contract": "timelock",
+      "role": "PROPOSER",
+      "account": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+      "label": "testnetSafe",
+      "has": true
+    },
+    {
+      "contract": "timelock",
+      "role": "EXECUTOR",
+      "account": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+      "label": "testnetSafe",
+      "has": true
+    },
+    {
+      "contract": "timelock",
+      "role": "CANCELLER",
+      "account": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+      "label": "testnetSafe",
+      "has": true
+    },
+    {
+      "contract": "market",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xCBbF2d82A30f74C447916312d7aD4E79cCA94b56",
+      "label": "timelock",
+      "has": true
+    },
+    {
+      "contract": "market",
+      "role": "PAUSER",
+      "account": "0xCBbF2d82A30f74C447916312d7aD4E79cCA94b56",
+      "label": "timelock",
+      "has": false
+    },
+    {
+      "contract": "market",
+      "role": "ARBITER",
+      "account": "0xCBbF2d82A30f74C447916312d7aD4E79cCA94b56",
+      "label": "timelock",
+      "has": false
+    },
+    {
+      "contract": "staking",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xCBbF2d82A30f74C447916312d7aD4E79cCA94b56",
+      "label": "timelock",
+      "has": true
+    },
+    {
+      "contract": "staking",
+      "role": "OPERATOR",
+      "account": "0xCBbF2d82A30f74C447916312d7aD4E79cCA94b56",
+      "label": "timelock",
+      "has": false
+    },
+    {
+      "contract": "timelock",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xCBbF2d82A30f74C447916312d7aD4E79cCA94b56",
+      "label": "timelock",
+      "has": true
+    },
+    {
+      "contract": "timelock",
+      "role": "PROPOSER",
+      "account": "0xCBbF2d82A30f74C447916312d7aD4E79cCA94b56",
+      "label": "timelock",
+      "has": false
+    },
+    {
+      "contract": "timelock",
+      "role": "EXECUTOR",
+      "account": "0xCBbF2d82A30f74C447916312d7aD4E79cCA94b56",
+      "label": "timelock",
+      "has": false
+    },
+    {
+      "contract": "timelock",
+      "role": "CANCELLER",
+      "account": "0xCBbF2d82A30f74C447916312d7aD4E79cCA94b56",
+      "label": "timelock",
+      "has": false
+    },
+    {
+      "contract": "market",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xdb2DE04836dC3773f86b351DFa62FE681982310D",
+      "label": "market",
+      "has": false
+    },
+    {
+      "contract": "market",
+      "role": "PAUSER",
+      "account": "0xdb2DE04836dC3773f86b351DFa62FE681982310D",
+      "label": "market",
+      "has": false
+    },
+    {
+      "contract": "market",
+      "role": "ARBITER",
+      "account": "0xdb2DE04836dC3773f86b351DFa62FE681982310D",
+      "label": "market",
+      "has": false
+    },
+    {
+      "contract": "staking",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xdb2DE04836dC3773f86b351DFa62FE681982310D",
+      "label": "market",
+      "has": false
+    },
+    {
+      "contract": "staking",
+      "role": "OPERATOR",
+      "account": "0xdb2DE04836dC3773f86b351DFa62FE681982310D",
+      "label": "market",
+      "has": true
+    },
+    {
+      "contract": "timelock",
+      "role": "DEFAULT_ADMIN",
+      "account": "0xdb2DE04836dC3773f86b351DFa62FE681982310D",
+      "label": "market",
+      "has": false
+    },
+    {
+      "contract": "timelock",
+      "role": "PROPOSER",
+      "account": "0xdb2DE04836dC3773f86b351DFa62FE681982310D",
+      "label": "market",
+      "has": false
+    },
+    {
+      "contract": "timelock",
+      "role": "EXECUTOR",
+      "account": "0xdb2DE04836dC3773f86b351DFa62FE681982310D",
+      "label": "market",
+      "has": false
+    },
+    {
+      "contract": "timelock",
+      "role": "CANCELLER",
+      "account": "0xdb2DE04836dC3773f86b351DFa62FE681982310D",
+      "label": "market",
+      "has": false
+    }
+  ],
+  "timelockState": {
+    "minDelay": "172800",
+    "safe": "0xFEAdc7024F99C9ef9fE7580Ed2543d57C26a4Cb6",
+    "officialMarket": "0xdb2DE04836dC3773f86b351DFa62FE681982310D",
+    "guardCodehash": "0xda004ea443ed276e90795d49fddb0ca56623b36d48fcf874e875482be3238fbe"
+  },
+  "deployerEthAfter": "0.018057868359447152",
+  "ethSpentInclVrfFunding": "0.003087355314066363"
+}

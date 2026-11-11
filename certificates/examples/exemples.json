@@ -1,0 +1,30 @@
+[
+  {
+    "fichier": "exemple-cfc-informaticien.pdf",
+    "type": "CFC",
+    "serie": "SPR-D33D3B24E856EB1EA9A4146E6582BBEA",
+    "emetteur": "École professionnelle Exemple de Lausanne (FICTIVE)",
+    "sha256": "fd1b1cc3be1b9b42880af7be50f87e273b8dc8ba6d968cad83aff457c17a2f66"
+  },
+  {
+    "fichier": "exemple-attestation-stage.pdf",
+    "type": "ATTESTATION_STAGE",
+    "serie": "SPR-348640FEFC5FC1716A04DB32A1661BBB",
+    "emetteur": "Atelier Démo Sàrl, Genève (ENTREPRISE FICTIVE)",
+    "sha256": "877cb7ca9b8ef73cb1dc02f68f2388750da5b4e5e6b3900353987e75e315e7d5"
+  },
+  {
+    "fichier": "exemple-certificat-travail.pdf",
+    "type": "CERTIFICAT_TRAVAIL",
+    "serie": "SPR-44A08918F6FE036BF3B65529D8A25554",
+    "emetteur": "Exemple Transports SA, Fribourg (EMPLOYEUR FICTIF)",
+    "sha256": "a05a070d0ca5e4bedbd2927a054eb286f41e125ab533aceaa12eded6f2f72cc4"
+  },
+  {
+    "fichier": "exemple-cfc-informaticien-FALSIFIE.pdf",
+    "type": "FALSIFIE",
+    "falsification": "1 octet modifié : note 5.2 -> 5.8",
+    "octets_differents": 1,
+    "sha256": "e3ef2324aefc3c44d5517a957c4d82a47d69d4ebc18e355e9a33d65c6265029d"
+  }
+]

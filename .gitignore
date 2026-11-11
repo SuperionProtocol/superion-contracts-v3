@@ -8,3 +8,17 @@ coverage.json
 .env.*
 __pycache__/
 *.pyc
+# test evidence written by the suite
+logs/
+# Safe 1.4.1 test dependency, fetched and SRI-checked by helpers/prepare-safe.py
+.safe-deps/
+.local-home/
+.npm-cache/
+# throwaway testnet wallets created by the Sepolia scripts (never commit)
+deployments/.*.json
+certificates/deployments/.*.json
+**/*.DRYRUN.json
+certificates/node_modules/
+certificates/cache/
+certificates/artifacts/
+certificates/logs/

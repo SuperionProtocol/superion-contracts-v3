@@ -5,7 +5,8 @@
 > The Base mainnet V2.1 contracts are **not** to be used for pilots; pilots run only on this Base Sepolia V3 stack
 > until an audited mainnet deployment exists.
 
-Superion is a verified-work marketplace on Base. A client (creator) posts a job paid in SUPER, a staked provider
+Superion is a verified-work marketplace on Base. A client (creator) posts a job paid in SUPER (or, in the USDC market
+described below, in testnet USDC), a staked provider
 delivers it, and anyone can challenge the result during a challenge period. A challenged job goes to a committee of
 staked verifiers drawn at random (Chainlink VRF v2.5 on Base Sepolia, stake-weighted, without replacement, parties
 excluded) who vote with commit/reveal. One appeal round with a larger, disjoint committee is possible. The arbiter role
@@ -68,6 +69,44 @@ One full dispute was run on the deployed stack with throwaway test wallets (reco
 An earlier attempt on 10 November (`deployments/smoke-run1-2026-11-10.json`) requested randomness but was not
 fulfilled within the draw window while the VRF subscription held a very small native balance; it is kept for completeness.
 
+## USDC payment market (v3.2-usdc, Base Sepolia testnet)
+
+`contracts/v3/SuperionJobMarketplaceV3.sol` in this repository is the **USDC-enabled version** of the V3 market. It is
+deployed on Base Sepolia as `MarketplaceV3` at
+[`0x51B8E5813442EbA9668d713c10527De45a1Cbe79`](https://sepolia.basescan.org/address/0x51B8E5813442EbA9668d713c10527De45a1Cbe79#code)
+(deployment record: [`deployments/v3-usdc.baseSepolia.json`](deployments/v3-usdc.baseSepolia.json)). **Testnet only, not
+audited.** The earlier SUPER-only market listed in the table above (`0xdb2D…310D`) is unchanged and kept for history.
+
+What changed compared with the SUPER-only market:
+
+- `createJobWithToken(paymentToken, budget, duration, jobURI)` lets a creator pay a job in an allow-listed ERC-20.
+  `createJob` still pays in SUPER. The allow-list entry (`setPaymentToken`: allowed flag, maximum budget per job, SUPER per
+  token unit) can only be set by the market admin, i.e. through the 48 h governance timelock.
+- For a job paid in USDC, the job amount and the fee are paid out in USDC. Provider stake, challenger bond, vote fees,
+  slashing and burning remain in SUPER, using the configured SUPER-per-USDC rate to size the provider stake and the
+  verifier-stake job cap.
+- If the frozen treasury of a job is the zero address, the USDC fee goes to `fallbackTreasury` (set to the market admin at
+  construction, which is the timelock) so no USDC can get stuck.
+- Tokens that are not allow-listed are refused (`TokenNotAllowed`). A fee-on-transfer token is covered by a test.
+
+Status on Base Sepolia (read on chain): Circle's Base Sepolia USDC
+(`0x036CbD53842c5426634e7929541eC2318f3dCF7e`) was allow-listed through the timelock on 24 November 2026
+([`0xd207fd19…2255`](https://sepolia.basescan.org/tx/0xd207fd19e893ce72ccea02fb982c7742e17391011e51edc253b404c5d2ed2255),
+executed by the testnet Safe). The configured maximum is 3,000 USDC per job at 1 USDC = 1 SUPER. The record in
+`deployments/v3-usdc.baseSepolia.json` was written at deployment time, before this whitelisting, so its `marketState`
+shows USDC as not yet allowed and its `pendingUsdcWhitelist` section holds the calldata that was scheduled. No USDC-paid job
+has been settled on this market yet; the end-to-end dispute smoke test in `deployments/v3-trois-limites.baseSepolia.smoke.json`
+was run on the SUPER-only market.
+
+Bytecode check of the USDC market: the runtime bytecode compiled from this repository (solc 0.8.24, settings below)
+matches `eth_getCode` of `0x51B8…be79` on `https://sepolia.base.org` byte for byte once the five immutable slots are masked,
+including the CBOR metadata hash. Runtime size is 24,411 bytes (EIP-170 limit 24,576). Only the market contract was
+compared for this release; the other contracts of the stack are listed in the deployment record.
+
+The other addresses in `deployments/v3-usdc.baseSepolia.json` (the USDC stack):
+staking `0x0D62…6f99`, timelock `0x2Ea0…bf1E`, draw engine `0x0ecE…7541`, mission terms `0xD13a…12DF`, testnet Safe
+`0xFEAd…4Cb6` (shared with the earlier stack).
+
 ## Repository layout
 
 | Path | Content |
@@ -79,19 +118,19 @@ fulfilled within the draw window while the VRF subscription held a very small na
 | `contracts/governance/` | 48 h governance timelock with role restrictions; Safe guard |
 | `contracts/deploy/` | Helper used to install the guard at Safe setup |
 | `contracts/code/` | `CodeMissionSuites`: frozen test-suite commitments for code missions (does not run tests) |
-| `contracts/test/` | Test-only contracts (local VRF coordinator mock without proof verification, fixtures) |
+| `contracts/test/` | Test-only contracts (local VRF coordinator mock without proof verification, fixtures, `MockUSDC` / `MockFeeToken` for the USDC tests) |
 | `.chainlink-deps/` | 4 unmodified source files from `@chainlink/contracts` 1.5.0 (MIT), hashes in `vendor/CHAINLINK-PACKAGE-LOCK.json` |
 | `certificates/` | `CertificateRegistry` v2: separate Hardhat project, tests, fictional example PDFs, deployment record |
 | `test/`, `helpers/`, `reference/` | Test suite and local fixtures |
 | `scripts/sepolia/` | Base Sepolia deployment, smoke-test and role-reading scripts (testnet only) |
-| `deployments/` | Deployment and smoke-test records |
+| `deployments/` | Deployment and smoke-test records (`v3-usdc.baseSepolia.json` = USDC market) |
 | `mechanism/` | Mechanism design note and dispute simulation (simulated data only) |
 
 ## Compiler
 
 - solc **0.8.24**, `viaIR: true`, `evmVersion: cancun`
 - Optimizer **runs = 1** for the market, FrozenVrfDraw, MissionTerms, timelock, guard and CodeMissionSuites
-  (market runtime size 23,543 bytes, under the EIP-170 limit of 24,576); runs = 200 for other files
+  (USDC market runtime size 24,411 bytes, under the EIP-170 limit of 24,576; the earlier SUPER-only market was 23,543 bytes); runs = 200 for other files
 - `SuperionToken.sol`: optimizer disabled, `evmVersion: paris`, no viaIR (original verified settings)
 - `CertificateRegistry.sol`: runs = 200, viaIR, cancun (`certificates/hardhat.config.cjs`)
 
@@ -105,14 +144,14 @@ Requires Node.js 18+ (tested with Node 24) and Python 3 (to fetch pinned test de
 ```bash
 npm ci
 npm run prepare-deps     # Safe 1.4.1 artifacts + Chainlink 1.5.0 sources from npm, SRI/SHA-256 verified
-npx hardhat test         # expected: 342 passing
+npx hardhat test         # expected: 351 passing (342 + 9 USDC payment tests)
 
 cd certificates
 npm ci
 npx hardhat test         # expected: 30 passing
 ```
 
-Total: **372 passing, 0 failing** (342 V3 stack + 30 CertificateRegistry), from a clean install on 11 November 2026.
+Total: **381 passing, 0 failing** (351 V3 stack incl. 9 USDC payment tests + 30 CertificateRegistry). The 351 were run on 25 November 2026 on the USDC sources in this repository; the 30 certificate tests were last run on 11 November 2026 and the `certificates/` project is unchanged.
 Some test files are labelled `RISK` / reproduction: they pass when they reproduce a documented, still-open design
 question (see `CHANGELOG.md`), not because the risk is absent. The VRF used in tests is a local mock with **no**
 cryptographic proof verification; only the Base Sepolia deployment uses the real Chainlink coordinator.
@@ -125,7 +164,7 @@ cryptographic proof verification; only the Base Sepolia deployment uses the real
   requested and awaits acceptance by the Safe.
 - The 48 h timelock delays and publishes governance changes; it does not prevent a bad proposal from being executed.
 - The committee draw skips at most 40 busy verifiers; if almost all verifiers are busy, the dispute goes to Safe arbitration.
-- Market runtime size margin under EIP-170 is about 1 KB.
+- Market runtime size margin under EIP-170 is small (165 bytes for the USDC market).
 
 ## License
 

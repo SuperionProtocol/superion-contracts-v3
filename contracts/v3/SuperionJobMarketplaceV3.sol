@@ -36,7 +36,7 @@ interface IStakingV3 {
  *   8. job value capped relative to total registered verifier stake.
  */
 contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
-    using SafeERC20 for ISuperToken;
+    using SafeERC20 for IERC20;
     FrozenVrfDraw public immutable drawEngine;
     /// Rule history; each mission is bound to the version current at its creation.
     MissionTerms public immutable terms;
@@ -56,6 +56,7 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
     ISuperToken public immutable superToken;
     IStakingV3 public immutable staking;
 
+    address public immutable fallbackTreasury;
     address public treasury;
 
     // Split appended at the end so V2 numeric values are unchanged.
@@ -115,6 +116,15 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
 
     uint256 public nextJobId = 1;
     mapping(uint256 => Job) public jobs;
+    struct TokenConfig {
+        bool allowed;
+        uint256 maxBudget;
+        uint256 superPerUnit;
+    }
+
+    mapping(uint256 => address) public jobPaymentToken;
+    mapping(uint256 => uint256) public jobSuperBudget;
+    mapping(address => TokenConfig) public paymentTokens;
     mapping(uint256 => Dispute) public disputes;
     mapping(uint256 => mapping(uint256 => Round)) public rounds;
     mapping(uint256 => mapping(uint256 => address[])) internal _committees;
@@ -137,6 +147,8 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
 
     event TreasuryUpdated(address indexed treasury);
     event JobCreated(uint256 indexed jobId, address indexed creator, uint256 budget, uint16 feeBps, string jobURI);
+    event JobPaymentTokenSet(uint256 indexed jobId, address indexed paymentToken);
+    event PaymentTokenUpdated(address indexed token, bool allowed, uint256 maxBudget, uint256 superPerUnit);
     event JobAssigned(uint256 indexed jobId, address indexed provider, uint256 lockedStake);
     event JobCompleted(uint256 indexed jobId, string resultURI, uint256 challengeDeadline);
     event JobChallenged(uint256 indexed jobId, address indexed challenger, uint256 bond, bytes32 seedCommit, uint256 entropyBlock);
@@ -174,6 +186,7 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
     error NotEnoughVerifiers();
     error JobTooLarge();
     error StakeReserved();
+    error TokenNotAllowed();
 
     constructor(address _superToken, address _staking, address admin, address pauser, address arbiter, address _treasury, MissionTerms.Params memory p, FrozenVrfDraw.Config memory vrf) {
         drawEngine = new FrozenVrfDraw(vrf);
@@ -181,6 +194,7 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
         if (_superToken == address(0) || _staking == address(0) || admin == address(0)) revert InvalidParams();
         superToken = ISuperToken(_superToken);
         staking = IStakingV3(_staking);
+        fallbackTreasury = admin;
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
         if (pauser != address(0)) _grantRole(PAUSER_ROLE, pauser);
         if (arbiter != address(0)) _grantRole(ARBITER_ROLE, arbiter);
@@ -193,6 +207,13 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
     function setTreasury(address t) external onlyRole(DEFAULT_ADMIN_ROLE) {
         treasury = t;
         emit TreasuryUpdated(t);
+    }
+
+    function setPaymentToken(address token, bool allowed, uint256 maxBudget, uint256 superPerUnit) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (token == address(0) || token.code.length == 0 || token == address(superToken)) revert InvalidParams();
+        if (allowed && (maxBudget == 0 || superPerUnit == 0)) revert InvalidParams();
+        paymentTokens[token] = TokenConfig(allowed, maxBudget, superPerUnit);
+        emit PaymentTokenUpdated(token, allowed, maxBudget, superPerUnit);
     }
 
 
@@ -233,6 +254,15 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
     function maxJobBudget() public view returns (uint256) {
         (, uint256 cap) = terms.registryRule();
         return (totalVerifierBond * cap) / BPS;
+    }
+
+    function maxJobBudgetForToken(address paymentToken) external view returns (uint256) {
+        uint256 cap = maxJobBudget();
+        if (paymentToken == address(superToken)) return cap;
+        TokenConfig memory cfg = paymentTokens[paymentToken];
+        if (!cfg.allowed || cfg.superPerUnit == 0) return 0;
+        uint256 byStake = cap / cfg.superPerUnit;
+        return byStake < cfg.maxBudget ? byStake : cfg.maxBudget;
     }
 
     // ------------------------------------------------------------------ verifiers
@@ -290,26 +320,54 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
     function createJob(uint256 budget, uint256 duration, string calldata jobURI)
         external nonReentrant whenNotPaused returns (uint256 jobId)
     {
-        if (budget == 0 || duration == 0 || duration > MAX_JOB_DURATION || bytes(jobURI).length == 0) revert InvalidParams();
-        if (budget > maxJobBudget()) revert JobTooLarge();
-        superToken.safeTransferFrom(msg.sender, address(this), budget);
+        return _createJob(address(superToken), budget, duration, jobURI);
+    }
+
+    function createJobWithToken(address paymentToken, uint256 budget, uint256 duration, string calldata jobURI)
+        external nonReentrant whenNotPaused returns (uint256 jobId)
+    {
+        return _createJob(paymentToken, budget, duration, jobURI);
+    }
+
+    function _createJob(address paymentToken, uint256 budget, uint256 duration, string calldata jobURI)
+        internal returns (uint256 jobId)
+    {
+        if (paymentToken == address(0) || budget == 0 || duration == 0 || duration > MAX_JOB_DURATION || bytes(jobURI).length == 0) revert InvalidParams();
         jobId = nextJobId++;
         Job storage j = jobs[jobId];
+        uint256 cap = maxJobBudget();
+        uint256 sb;
+        if (paymentToken == address(superToken)) {
+            if (budget > cap) revert JobTooLarge();
+            sb = budget;
+        } else {
+            TokenConfig memory cfg = paymentTokens[paymentToken];
+            if (!cfg.allowed) revert TokenNotAllowed();
+            if (budget > cfg.maxBudget || budget > cap / cfg.superPerUnit) revert JobTooLarge();
+            sb = budget * cfg.superPerUnit;
+            if (sb == 0) revert JobTooLarge();
+        }
+        jobSuperBudget[jobId] = sb;
+        (j.feeBps, j.burnShareBps, j.treasuryShareBps) = terms.bind(jobId);
+        uint256 beforeBal = paymentToken == address(superToken) ? 0 : IERC20(paymentToken).balanceOf(address(this));
+        IERC20(paymentToken).safeTransferFrom(msg.sender, address(this), budget);
+        if (paymentToken != address(superToken) && IERC20(paymentToken).balanceOf(address(this)) - beforeBal != budget) revert InvalidParams();
+        jobPaymentToken[jobId] = paymentToken;
         j.creator = msg.sender;
         j.budget = budget;
-        (j.feeBps, j.burnShareBps, j.treasuryShareBps) = terms.bind(jobId);
-        j.treasury = treasury; // frozen recipient: later setTreasury never redirects this mission
+        j.treasury = treasury;
         j.deadline = uint64(block.timestamp + duration);
         j.status = Status.Open;
         j.jobURI = jobURI;
         emit JobCreated(jobId, msg.sender, budget, j.feeBps, jobURI);
+        if (paymentToken != address(superToken)) emit JobPaymentTokenSet(jobId, paymentToken);
     }
 
     function assignJob(uint256 jobId) external nonReentrant whenNotPaused {
         Job storage j = jobs[jobId];
         if (j.status != Status.Open || block.timestamp >= j.deadline) revert InvalidState();
         if (msg.sender == j.creator) revert NotAllowed();
-        uint256 lockAmt = terms.providerLock(jobId, j.budget);
+        uint256 lockAmt = terms.providerLock(jobId, jobSuperBudget[jobId]);
         j.provider = msg.sender;
         j.lockedStake = lockAmt;
         j.status = Status.Assigned;
@@ -347,7 +405,7 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
         j.status = Status.Cancelled;
         uint256 amount = j.budget;
         j.budget = 0;
-        superToken.safeTransfer(j.creator, amount);
+        IERC20(jobPaymentToken[jobId]).safeTransfer(j.creator, amount);
         emit JobCancelled(jobId);
     }
 
@@ -372,8 +430,8 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
         // Filing rights must not depend on the current verifier population.
         // The existing protected Draw window / arbitration route handles shortages.
 
-        (uint256 bond, uint256 penalty, uint256 voteFee, uint16 sv, uint16 sc) = terms.filing(jobId, j.budget);
-        superToken.safeTransferFrom(msg.sender, address(this), bond);
+        (uint256 bond, uint256 penalty, uint256 voteFee, uint16 sv, uint16 sc) = terms.filing(jobId, jobSuperBudget[jobId]);
+        IERC20(address(superToken)).safeTransferFrom(msg.sender, address(this), bond);
 
         d.challenger = msg.sender;
         d.bond = bond;
@@ -518,7 +576,7 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
             _protectedDeadline[jobId] = _activeTimestamp() + window;
             emit DisputeDecided(jobId, providerValid, d.appealDeadline);
         } else {
-            _settle(jobId, j, d, providerValid, false);
+            _settle(jobId, j, d, providerValid);
         }
     }
 
@@ -533,7 +591,7 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
         // An appeal may be filed even without enough fresh, disjoint jurors.
         // Appeal bond arithmetic unchanged; inputs are the mission's bound rules.
         uint256 ab = terms.appealBond(jobId, d.bond, d.voteFee);
-        superToken.safeTransferFrom(msg.sender, address(this), ab);
+        IERC20(address(superToken)).safeTransferFrom(msg.sender, address(this), ab);
         d.appellant = msg.sender;
         d.appealBond = ab;
         d.round = 1;
@@ -551,7 +609,7 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
         Dispute storage d = disputes[jobId];
         if (j.status != Status.Disputed || d.phase != Phase.Decided) revert InvalidState();
         if (_activeTimestamp() <= _protectedDeadline[jobId]) revert TooEarly();
-        _settle(jobId, j, d, d.outcomeValid, false);
+        _settle(jobId, j, d, d.outcomeValid);
     }
 
     /// @notice The authorized arbiter decides after failed Draw or expired no-majority Voting.
@@ -563,7 +621,7 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
         Dispute storage d = disputes[jobId];
         if (j.status != Status.Disputed) revert InvalidState();
         if (d.phase != Phase.Arbitration) _requestArbitration(jobId, d);
-        _settle(jobId, j, d, providerValid, true);
+        _settle(jobId, j, d, providerValid);
     }
 
     /// @notice Permissionless escalation ONLY; this function never pays, refunds, burns or unlocks.
@@ -604,7 +662,7 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
                 uint256 pay = fee < potLeft ? fee : potLeft;
                 if (pay > 0) {
                     potLeft -= pay;
-                    superToken.safeTransfer(v, pay);
+                    IERC20(address(superToken)).safeTransfer(v, pay);
                     emit VerifierFeePaid(jobId, v, pay);
                 }
             } else {
@@ -624,12 +682,13 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
         uint256 share = pool / winners;
         for (uint256 i = 0; i < committee.length; ++i) {
             address v = committee[i];
-            if (memberVote[jobId][v] == vote) superToken.safeTransfer(v, share);
+            if (memberVote[jobId][v] == vote) IERC20(address(superToken)).safeTransfer(v, share);
         }
         return pool - share * winners;
     }
 
-    function _settle(uint256 jobId, Job storage j, Dispute storage d, bool providerValid, bool byArbiter) internal {
+    function _settle(uint256 jobId, Job storage j, Dispute storage d, bool providerValid) internal {
+        bool byArbiter = d.phase == Phase.Arbitration;
         d.phase = Phase.Done;
         drawEngine.close(jobId,d.round);
         uint256 dr = d.round; // deciding round
@@ -659,7 +718,7 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
                         if (memberVote[jobId][c0[i]] == wrong) toBurn += _penalize(jobId, c0[i], d.penalty);
                     }
                 }
-                if (appealLeft > 0) superToken.safeTransfer(d.appellant, appealLeft);
+                if (appealLeft > 0) IERC20(address(superToken)).safeTransfer(d.appellant, appealLeft);
                 appealLeft = 0;
             }
         }
@@ -674,30 +733,35 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
         if (providerValid) {
             // challenger lost: bond remainder = coherence reward for the deciding majority
             if (winners > 0) toBurn += _payWinners(jobId, dr, win, bondLeft, winners);
-            else if (bondLeft > 0) superToken.safeTransfer(j.provider, bondLeft);
+            else if (bondLeft > 0) IERC20(address(superToken)).safeTransfer(j.provider, bondLeft);
             emit DisputeResolved(jobId, true, byArbiter);
             _payProvider(jobId, j);
         } else {
-            uint256 toChallenger = bondLeft;
-            uint256 slashAmt = j.lockedStake;
-            j.lockedStake = 0;
-            if (slashAmt > 0) {
-                staking.slash(j.provider, slashAmt);
-                uint256 reimb = feesFromBond < slashAmt ? feesFromBond : slashAmt; // provider pays the vote fees
-                uint256 rest = slashAmt - reimb;
-                uint256 cShare = (rest * d.slashChallengerBps) / BPS;
-                uint256 vShare = winners > 0 ? (rest * d.slashVerifierBps) / BPS : 0;
-                uint256 burnedSlash = rest - cShare - vShare;
-                toChallenger += reimb + cShare;
-                if (vShare > 0) burnedSlash += _payWinners(jobId, dr, win, vShare, winners);
-                toBurn += burnedSlash;
-                emit ProviderSlashed(jobId, j.provider, slashAmt, burnedSlash);
-            }
-            if (toChallenger > 0) superToken.safeTransfer(d.challenger, toChallenger);
+            toBurn += _slashAndReimburse(jobId, j, d, bondLeft, feesFromBond, winners, win);
             emit DisputeResolved(jobId, false, byArbiter);
             _refundCreator(jobId, j);
         }
         _burn(toBurn);
+    }
+
+    function _slashAndReimburse(uint256 jobId, Job storage j, Dispute storage d, uint256 bondLeft, uint256 feesFromBond, uint256 winners, uint8 win)
+        internal returns (uint256 burnedSlash)
+    {
+        uint256 toChallenger = bondLeft;
+        uint256 slashAmt = j.lockedStake;
+        j.lockedStake = 0;
+        if (slashAmt > 0) {
+            staking.slash(j.provider, slashAmt);
+            uint256 reimb = feesFromBond < slashAmt ? feesFromBond : slashAmt;
+            uint256 rest = slashAmt - reimb;
+            uint256 cShare = (rest * d.slashChallengerBps) / BPS;
+            uint256 vShare = winners > 0 ? (rest * d.slashVerifierBps) / BPS : 0;
+            burnedSlash = rest - cShare - vShare;
+            toChallenger += reimb + cShare;
+            if (vShare > 0) burnedSlash += _payWinners(jobId, d.round, win, vShare, winners);
+            emit ProviderSlashed(jobId, j.provider, slashAmt, burnedSlash);
+        }
+        if (toChallenger > 0) IERC20(address(superToken)).safeTransfer(d.challenger, toChallenger);
     }
 
     function _penalize(uint256 jobId, address v, uint256 penalty) internal returns (uint256 p) {
@@ -719,21 +783,24 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
         j.status = Status.Finalized;
         _unlockProvider(j);
 
-        uint256 fee = (budget * j.feeBps) / BPS;
-        uint256 burned = (fee * j.burnShareBps) / BPS;
+        address pt = jobPaymentToken[jobId];
         address t = j.treasury;
-        uint256 toTreasury = t == address(0) ? 0 : (fee * j.treasuryShareBps) / BPS;
-        uint256 toStakers = fee - burned - toTreasury;
+        bool isSuper = pt == address(superToken);
+        uint256 fee = (budget * j.feeBps) / BPS;
+        uint256 burned = isSuper ? (fee * j.burnShareBps) / BPS : 0;
+        if (!isSuper && t == address(0)) t = fallbackTreasury;
+        uint256 toTreasury = t == address(0) ? 0 : (isSuper ? (fee * j.treasuryShareBps) / BPS : fee);
+        uint256 toStakers = isSuper ? fee - burned - toTreasury : 0;
         uint256 payout = budget - fee;
 
-        superToken.safeTransfer(j.provider, payout);
+        IERC20(pt).safeTransfer(j.provider, payout);
         _burn(burned);
         if (toTreasury > 0) {
-            superToken.safeTransfer(t, toTreasury);
+            IERC20(pt).safeTransfer(t, toTreasury);
             emit TreasuryPaid(jobId, t, toTreasury);
         }
         if (toStakers > 0) {
-            superToken.forceApprove(address(staking), toStakers);
+            IERC20(address(superToken)).forceApprove(address(staking), toStakers);
             staking.depositRewards(toStakers);
         }
         emit JobFinalized(jobId, j.provider, payout, fee, burned, toStakers);
@@ -751,7 +818,7 @@ contract SuperionJobMarketplaceV3 is AccessControl, ReentrancyGuard, Pausable {
         uint256 amount = j.budget;
         j.budget = 0;
         j.status = Status.Refunded;
-        superToken.safeTransfer(j.creator, amount);
+        IERC20(jobPaymentToken[jobId]).safeTransfer(j.creator, amount);
         emit JobRefunded(jobId, j.creator, amount);
     }
 

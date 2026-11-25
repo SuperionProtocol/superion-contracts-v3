@@ -2,6 +2,21 @@
 
 All dates are 2026. Everything below is **Base Sepolia testnet only and not audited**. V3 is not deployed on Base mainnet.
 
+## v3.2-usdc — 25 November (published) — USDC payment market on Base Sepolia
+
+Base Sepolia testnet only, not audited. Deployed 21 November; USDC allow-listed through the timelock on 24 November.
+
+- `SuperionJobMarketplaceV3`: `createJobWithToken`, `setPaymentToken` (admin / timelock only), `maxJobBudgetForToken`,
+  per-job payment token and frozen SUPER budget, events `JobPaymentTokenSet` and `PaymentTokenUpdated`, error
+  `TokenNotAllowed`, immutable `fallbackTreasury` (USDC fee goes there when the job's frozen treasury is the zero address).
+- Job amounts, fees and refunds of a USDC job are paid in USDC; stake, bonds, vote fees, slashing and burn stay in SUPER.
+- `_settle` split into smaller internal functions (`_slashAndReimburse`) to stay under the contract size limit; market runtime
+  size is now 24,411 bytes (limit 24,576).
+- New `contracts/test/MockUSDC.sol` (6-decimal mock and a fee-on-transfer mock) and `test/usdc-payment.test.js` (9 tests).
+- New deployment record `deployments/v3-usdc.baseSepolia.json` (market `0x51B8E5813442EbA9668d713c10527De45a1Cbe79`).
+- Tests: 351 passing in the V3 stack suite (342 before + 9 USDC). Bytecode of the deployed market matches the sources here.
+- The Solidity sources of the other contracts are unchanged from the previous release.
+
 ## v3-trois-limites-sepolia-2026-11-10 — Base Sepolia release
 
 Deployed on Base Sepolia on 10 November; end-to-end dispute with Chainlink VRF fulfillment run on 11 November.
